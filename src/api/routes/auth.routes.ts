@@ -3,16 +3,16 @@ import { forgotPassword, login, logout, resetPassword, signup } from '../control
 // import { forgotPasswordValidator, loginValidator, resetPasswordValidator, signupValidator } from '../validators/authValidator/auth.validator';
 // import { validateRequest } from '../middlewares/index';
 
-const authRoutes = express.Router();
-authRoutes.post('/login', login);
-authRoutes.post('/signup', signup);
-authRoutes.post('/forgot-password',  forgotPassword);
-authRoutes.post('/reset-password',resetPassword);
+const authRouter = express.Router();
+authRouter.post('/login', login);
+authRouter.post('/signup', signup);
+authRouter.post('/forgot-password',  forgotPassword);
+authRouter.post('/reset-password',resetPassword);
 
 
 // authRoutes.post('/login', loginValidator, validateRequest, login);
 // authRoutes.post('/signup', signupValidator, validateRequest, signup);
-// authRoutes.post('/forgot-password', forgotPasswordValidator, validateRequest, forgotPassword);
-// authRoutes.post('/reset-password', resetPasswordValidator, validateRequest, resetPassword);
-authRoutes.post('/logout', logout);
-export default authRoutes;
+// authRouter.post('/forgot-password', forgotPasswordValidator, validateRequest, forgotPassword);
+// authRouter.post('/reset-password', resetPasswordValidator, validateRequest, resetPassword);
+authRouter.post('/logout', logout);
+export default authRouter;

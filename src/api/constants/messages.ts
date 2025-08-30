@@ -30,3 +30,16 @@ export const AUTH_MESSAGES = {
   FORGOT_PASSWORD_SUCCESS: "Password reset token generated",
   FORGOT_PASSWORD_FAILED: "Forgot password failed",
 } as const;
+
+
+export const CLIENT_MESSAGES = {
+  CLIENTS_FETCH_SUCCESS: "Clients fetched successfully",
+  CLIENTS_FETCH_FAILED: "Failed to fetch clients",
+} as const;
+
+
+
+export const LANGUAGES_MESSAGES = {
+  LANGUAGES_FETCH_SUCCESS: "Languages fetched successfully",
+  LANGUAGES_FETCH_FAILED: "Failed to fetch languages",
+}  as const;

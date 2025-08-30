@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import authRoutes from './api/routes/auth.routes';
 import { connectDB } from './config/database/connection';
 import { errorHandler, responseHandler } from './api/middlewares';
+import allRouter from './api/routes/routes';
 
 const app: Application = express();
 
@@ -32,7 +33,7 @@ app.use(responseHandler);
 app.use(morgan('dev'));
 
 // API routes
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1', allRouter);
 
 // Global error handler (after routes)
 app.use(errorHandler);
