@@ -42,4 +42,13 @@ export const CLIENT_MESSAGES = {
 export const LANGUAGES_MESSAGES = {
   LANGUAGES_FETCH_SUCCESS: "Languages fetched successfully",
   LANGUAGES_FETCH_FAILED: "Failed to fetch languages",
-}  as const;
+} as const;
+
+
+export const QUALIFICATION_MESSAGES = {
+  QUALIFICATION_FETCH_SUCCESS: "Qualifications fetched successfully",
+  QUALIFICATION_FETCH_FAILED: "Failed to fetch qualifications",
+  QUALIFICATIONS_FETCH_SUCCESS: "Qualifications fetched successfully ",
+  QUALIFICATIONS_FETCH_FAILED: "Failed to fetch qualifications",
+
+} as const;

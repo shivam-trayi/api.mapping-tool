@@ -2,7 +2,6 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import authRoutes from './api/routes/auth.routes';
 import { connectDB } from './config/database/connection';
 import { errorHandler, responseHandler } from './api/middlewares';
 import allRouter from './api/routes/routes';
@@ -13,14 +12,12 @@ const app: Application = express();
 app.use(helmet());
 
 // CORS
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Origin'],
-  })
-);
+app.use(cors({
+  origin: "http://localhost:5173", // ya "*" for all origins
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "partner-id", "client-time-zone", "lang-key"],
+  credentials: true,
+}));
 
 // Request parsing
 app.use(express.json({ limit: '10mb' }));
