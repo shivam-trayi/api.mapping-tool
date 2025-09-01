@@ -2,16 +2,23 @@ import * as qualificationDao from "../dao/qualification.dao";
 
 export const getQualifications = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
-
-  console.log(`📌 Service: Fetching qualifications (page=${page}, limit=${limit})`);
-
-  const [qualifications, totalCount, questions, answers] = await Promise.all([
+  const [qualifications, totalCount] = await Promise.all([
     qualificationDao.getAllQualifications(offset, limit),
     qualificationDao.getQualificationsCount(),
-    qualificationDao.getAllQuestions(),
-    qualificationDao.getAllAnswers(),
   ]);
 
+  const qualificationIds = qualifications.map(q => q.id);
+
+  const questions = qualificationIds.length > 0
+    ? await qualificationDao.getQuestionsByQualificationIds(qualificationIds)
+    : [];
+
+  const questionIds = questions.map(q => q.id);
+  const answers = questionIds.length > 0
+    ? await qualificationDao.getAnswersByQuestionIds(questionIds)
+    : [];
+
+  // Map questions and answers to qualifications
   const data = qualifications.map((q) => ({
     id: q.id,
     name: q.name,
