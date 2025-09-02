@@ -4,5 +4,10 @@ import * as qualificationController from "../controllers/qualification.controlle
 const qualificationRouter = Router();
 
 qualificationRouter.get("/", qualificationController.getQualifications);
+qualificationRouter.post("/saveQualMapping", qualificationController.insertQualificationMapping);
+qualificationRouter.get("/getQualificationDemographicsMappingReview", qualificationController.getQualificationDemographicsMappingReview);
+qualificationRouter.post("/saveQualificationReviewData", qualificationController.insertQualificationReviewData);
+
+
 
 export default qualificationRouter;

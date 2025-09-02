@@ -1,5 +1,7 @@
 import * as qualificationDao from "../dao/qualification.dao";
+import { CreateMappingResponse, QualificationsMappingData } from "../interfaces/qualification";
 
+// Get paginated qualifications
 export const getQualifications = async (page = 1, limit = 10, search = "") => {
   const offset = (page - 1) * limit;
 
@@ -15,6 +17,7 @@ export const getQualifications = async (page = 1, limit = 10, search = "") => {
     : [];
 
   const questionIds = questions.map(q => q.id);
+
   const answers = questionIds.length > 0
     ? await qualificationDao.getAnswersByQuestionIds(questionIds)
     : [];
@@ -52,4 +55,50 @@ export const getQualifications = async (page = 1, limit = 10, search = "") => {
       totalPages: Math.ceil(totalCount / limit),
     },
   };
+};
+
+// Create mapping
+export const createDemographicsMapping = async (
+  bodyData: QualificationsMappingData[] // <-- now an array
+): Promise<CreateMappingResponse> => {
+  try {
+    await qualificationDao.createQualificationsMappingDao(bodyData);
+
+    // If no error, assume rows inserted successfully
+    return { status: 200, success: true };
+  } catch (error) {
+    console.error("Error in createDemographicsMapping:", error);
+    return { status: 500, success: false };
+  }
+};
+
+
+export const getQualificationDemographicsMappingReviewService = async (queryData: any) => {
+  try {
+    const result = await qualificationDao.getQualificationDemographicsMappingReviewDao(queryData);
+
+    if (!result || result.length === 0) {
+      return { status: 404, success: false, data: [] };
+    }
+
+    return { status: 200, success: true, data: result };
+  } catch (error) {
+    console.error("Error in getQualificationDemographicsMappingReviewService:", error);
+    throw error;
+  }
+};
+
+
+export const createDemographicsMappingReview = async (
+  bodyData: QualificationsMappingData[] // <-- now an array
+): Promise<CreateMappingResponse> => {
+  try {
+    await qualificationDao.saveDemographicsMappingReviewInDB(bodyData);
+
+    // If no error, assume rows inserted successfully
+    return { status: 200, success: true };
+  } catch (error) {
+    console.error("Error in createDemographicsMapping:", error);
+    return { status: 500, success: false };
+  }
 };

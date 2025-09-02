@@ -15,3 +15,37 @@ export const getQualifications = async (req: Request, res: Response) => {
     return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED);
   }
 };
+
+export const insertQualificationMapping = async (req: Request, res: Response) => {
+  try {
+    let bodyData = req.body;
+    const result =
+      await qualificationService.createDemographicsMapping(bodyData);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS);
+  } catch (err: any) {
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED
+    );
+  }
+};
+
+export const getQualificationDemographicsMappingReview = async (req: Request, res: Response) => {
+  try {
+    const queryData = req.query;
+    const result = await qualificationService.getQualificationDemographicsMappingReviewService(queryData);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS);
+  } catch (err: any) {
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED);
+  }
+};
+
+export const insertQualificationReviewData = async (req: Request, res: Response) => {
+  try {
+    let bodyData = req.body;
+    const result =
+      await qualificationService.createDemographicsMappingReview(bodyData);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS);
+  } catch (err: any) {
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED
+    );
+  }
+};
