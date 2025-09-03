@@ -52,3 +52,12 @@ export const QUALIFICATION_MESSAGES = {
   QUALIFICATIONS_FETCH_FAILED: "Failed to fetch qualifications",
 
 } as const;
+
+export const QUESTION_MESSAGES = {
+  QUESTIONS_FETCH_SUCCESS: "Questions mapping fetched successfully",
+  QUESTIONS_FETCH_FAILED: "Failed to fetch questions mapping",
+  REVIEW_MAPPING_FETCH_SUCCESS: "Question review mapping fetched successfully",
+  REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch question review mapping",
+  REVIEW_MAPPING_UPDATE_SUCCESS: "Review mapping updated successfully",
+  REVIEW_MAPPING_UPDATE_FAILED: "Failed to update review mapping",
+};
