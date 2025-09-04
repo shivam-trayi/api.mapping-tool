@@ -13,29 +13,27 @@ export const getMappingQuestionsDao = async (queryData: {
     }
 
     const query = `
-      SELECT  
-        q.text AS questionText,
-        q.id AS questionId,
-        qm.member_type AS memberType,
-        qm.member_id AS memberId,
+ 
+  SELECT  
+        qu.text AS questionText,
+        qu.id AS questionId,
+        qmm.member_type AS memberType,
+        qmm.member_id AS memberId,
         qmm.member_question_id AS memberQuestionId,
         qmm.old_member_question_id AS oldMemberQuestionId,
-        qual.id AS qualificationId, 
-        qual.name AS qualificationName,
-        q.language_id AS langCode
-      FROM dbo.qualifications_mapping qm
-      LEFT JOIN dbo.questions q 
+        q.id AS qualificationId, 
+        q.name AS qualificationName,
+        qu.language_id AS langCode
+      FROM dbo.qualifications q
+      LEFT JOIN dbo.qualifications_mapping qm 
         ON q.id = qm.qualification_id
-      LEFT JOIN dbo.qualifications qual 
-        ON qual.id = qm.qualification_id
+      LEFT JOIN dbo.questions as qu 
+        ON qu.demographic_id = qm.qualification_id
       LEFT JOIN dbo.questions_mapping qmm 
-        ON qmm.qualification_id = qm.qualification_id
-       AND qmm.member_question_id = q.demographic_id
-       AND qmm.member_type = qm.member_type
-       AND qmm.member_id = qm.member_id
+        ON qmm.question_id = qu.id
       WHERE qm.member_type = @memberType
         AND qm.member_id = @memberId
-        AND q.language_id = @langCode;
+        AND qu.language_id = @langCode;
     `;
 
     const request = pool.request();
@@ -71,26 +69,29 @@ export const getQuestionsMappingReviewDao = async (queryData: {
     }
 
     const query = `
-      SELECT 
-        q.id AS questionId,
-        q.text AS questionText,
-        q.language_id AS langCode,
-        qm.member_type AS memberType,
-        qm.member_id AS memberId,
-        qm.member_qualification_id AS memberQualificationId,
-        qm.old_member_qualification_id AS oldMemberQualificationId,
+
+             SELECT  
+        qu.text AS questionText,
+        qu.id AS questionId,
+        q.name as qualificationsname,
+        qmm.member_type AS memberType,
+        qmm.member_id AS memberId,
         qmm.member_question_id AS memberQuestionId,
-        qmm.old_member_question_id AS oldMemberQuestionId
-      FROM dbo.questions q
-      LEFT JOIN dbo.questions_mapping qmm
-        ON q.id = qmm.question_id
-        AND qmm.member_type = @memberType
-        AND qmm.member_id = @memberId
-      LEFT JOIN dbo.qualifications_mapping qm
-        ON qmm.qualification_id = qm.qualification_id
-        AND qm.member_type = @memberType
-        AND qm.member_id = @memberId
-      WHERE q.language_id = @langCode;
+        qmm.old_member_question_id AS oldMemberQuestionId,
+        q.id AS qualificationId, 
+        q.name AS qualificationName,
+        qu.language_id AS langCode
+      FROM dbo.qualifications q
+      LEFT JOIN dbo.qualifications_mapping qm 
+        ON q.id = qm.qualification_id
+      LEFT JOIN dbo.questions as qu 
+        ON qu.demographic_id = qm.qualification_id
+      LEFT JOIN dbo.questions_mapping qmm 
+        ON qmm.question_id = qu.id
+      WHERE qm.member_type = 'customer'
+        AND qm.member_id = 3
+        AND qu.language_id = 1
+AND ISNULL(qmm.old_member_question_id, -1) != ISNULL(qmm.member_question_id, -1)
     `;
 
     const request = pool.request();
@@ -133,7 +134,7 @@ export const updateQuestionsMappingReviewDao = async ({
     for (const opt of optionData) {
       // map frontend keys → db keys
       const questionId = opt.MasterQueryId;
-      const qualificationId = opt.MasterDemoId  ?? null; // अगर भेजना है
+      const qualificationId = opt.MasterDemoId ?? null; // अगर भेजना है
       const memberQuestionId = opt.MemberQueryId || null;
 
       // अगर questionId missing है तो skip
