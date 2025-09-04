@@ -115,7 +115,10 @@ export const createQualificationsMappingDao = async (
       request.input('member_qualification_id', constantId);
       request.input('created_by', created_by ?? 11);
       request.input('updated_by', updated_by ?? 11);
-      request.input('old_member_qualification_id', old_member_qualification_id ?? 11);
+      request.input(
+        'old_member_qualification_id',
+        old_member_qualification_id ?? 11
+      );
 
       await request.query(query);
     }
@@ -126,13 +129,12 @@ export const createQualificationsMappingDao = async (
   }
 };
 
-
-
-
 // Existing DAO methods remain unchanged...
 
 // Get mapping review for a member from qualifications_mapping table
-export const getQualificationDemographicsMappingReviewDao = async (queryData: { memberId: number }) => {
+export const getQualificationDemographicsMappingReviewDao = async (queryData: {
+  memberId: number;
+}) => {
   try {
     const { memberId } = queryData;
 
@@ -163,7 +165,10 @@ export const getQualificationDemographicsMappingReviewDao = async (queryData: { 
     const result = await request.query(query);
     return result.recordset;
   } catch (error) {
-    console.error('Error in getQualificationDemographicsMappingReviewDao:', error);
+    console.error(
+      'Error in getQualificationDemographicsMappingReviewDao:',
+      error
+    );
     throw error;
   }
 };
@@ -178,32 +183,40 @@ export const saveDemographicsMappingReviewInDB = async (
     for (const row of bodyData) {
       const result = await poolConnection
         .request()
-        .input("qualification_id", row.id)
-        .input("member_id", row.memberId)
-        .input("member_type", row.memberType || 'customer') // default 'customer'
-        .input("member_qualification_id", row.constantId || null)
-        .input("created_by", row.createdBy || null)
-        .input("updated_by", row.updatedBy || null)
+        .input('qualification_id', row.qualification_id)
+        .input('member_id', row.member_id)
+        .input('member_type', row.member_type || 'customer')
+        .input(
+          'member_qualification_id',
+          row.member_qualification_id || row.constantId || null
+        )
+        .input('created_by', row.created_by || null)
+        .input('updated_by', row.updated_by || null)
         .query(
           `INSERT INTO dbo.review_qualifications_mapping
             (qualification_id, member_id, member_type, member_qualification_id, created_at, created_by, updated_by)
-           OUTPUT inserted.id, inserted.qualification_id, inserted.member_id, inserted.member_type, inserted.member_qualification_id, inserted.created_at
+           OUTPUT inserted.qualification_id, inserted.member_id, inserted.member_type, inserted.member_qualification_id, inserted.created_at
            VALUES (@qualification_id, @member_id, @member_type, @member_qualification_id, GETDATE(), @created_by, @updated_by)`
         );
 
-      insertedRows.push(...result.recordset.map(r => ({
-        id: r.id,
-        qualificationId: r.qualification_id,
-        memberId: r.member_id,
-        memberType: r.member_type,
-        memberQualificationId: r.member_qualification_id,
-        createdAt: r.created_at
-      })));
+      insertedRows.push(
+        ...result.recordset.map((r) => ({
+          qualification_id: r.qualification_id,
+          member_id: r.member_id,
+          member_type: r.member_type,
+          member_qualification_id: r.member_qualification_id,
+          created_by: row.created_by ?? undefined,
+          updated_by: row.updated_by ?? undefined,
+          old_member_qualification_id:
+            row.old_member_qualification_id ?? undefined,
+          constantId: row.constantId,
+        }))
+      );
     }
 
     return insertedRows;
   } catch (error) {
-    console.error("Error in saveDemographicsMappingReviewInDB:", error);
+    console.error('Error in saveDemographicsMappingReviewInDB:', error);
     throw error;
   }
 };

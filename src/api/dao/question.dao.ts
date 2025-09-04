@@ -1,6 +1,10 @@
-import { pool } from "../../config/database/connection";
+import { pool } from '../../config/database/connection';
 
-export const getMappingQuestionsDao = async (queryData: { memberType: string; memberId: number; langCode: number }) => {
+export const getMappingQuestionsDao = async (queryData: {
+  memberType: string;
+  memberId: number;
+  langCode: number;
+}) => {
   try {
     const { memberType, memberId, langCode } = queryData;
 
@@ -34,24 +38,30 @@ export const getMappingQuestionsDao = async (queryData: { memberType: string; me
     `;
 
     const request = pool.request();
-    request.input("memberType", memberType);
-    request.input("memberId", memberId);
-    request.input("langCode", langCode);
+    request.input('memberType', memberType);
+    request.input('memberId', memberId);
+    request.input('langCode', langCode);
 
     const result = await request.query(query);
 
-    console.log("DAO Debug => Rows:", result.recordset.length, " Params:", { memberType, memberId, langCode });
+    console.log('DAO Debug => Rows:', result.recordset.length, ' Params:', {
+      memberType,
+      memberId,
+      langCode,
+    });
 
     return result.recordset;
   } catch (error) {
-    console.error("Error in getMappingQuestionsDao:", error);
+    console.error('Error in getMappingQuestionsDao:', error);
     throw error;
   }
 };
 
-
-
-export const getQuestionsMappingReviewDao = async (queryData: { memberType: string; memberId: number; langCode: number }) => {
+export const getQuestionsMappingReviewDao = async (queryData: {
+  memberType: string;
+  memberId: number;
+  langCode: number;
+}) => {
   try {
     const { memberType, memberId, langCode } = queryData;
 
@@ -83,20 +93,27 @@ export const getQuestionsMappingReviewDao = async (queryData: { memberType: stri
     `;
 
     const request = pool.request();
-    request.input("memberType", memberType);
-    request.input("memberId", memberId);
-    request.input("langCode", langCode);
+    request.input('memberType', memberType);
+    request.input('memberId', memberId);
+    request.input('langCode', langCode);
 
     const result = await request.query(query);
 
-    console.log("DAO Debug (Review) => Rows:", result.recordset.length, " Params:", { memberType, memberId, langCode });
+    console.log(
+      'DAO Debug (Review) => Rows:',
+      result.recordset.length,
+      ' Params:',
+      { memberType, memberId, langCode }
+    );
 
     return result.recordset;
   } catch (error) {
-    console.error("Error in getQuestionsMappingReviewDao:", error);
+    console.error('Error in getQuestionsMappingReviewDao:', error);
     throw error;
   }
 };
+
+
 
 
 
@@ -110,13 +127,23 @@ export const updateQuestionsMappingReviewDao = async ({
   optionData: any[];
 }) => {
   try {
-    const request = pool.request();
-    request.input("memberId", memberId);
-    request.input("memberType", memberType);
-
-    let updatedRows: any[] = [];
+    const updatedRows: any[] = [];
 
     for (const opt of optionData) {
+      // Validate required fields
+      if (!opt.questionId || !opt.qualificationId) {
+        console.warn(`Skipping invalid mapping:`, opt);
+        continue; // skip rows with missing required data
+      }
+
+      const request = pool.request();
+      request.input('memberId', memberId);  
+      request.input('memberType', memberType);
+      request.input('questionId', opt.questionId);
+      request.input('qualificationId', opt.qualificationId);
+      request.input('memberQuestionId', opt.memberQuestionId ?? null);
+      request.input('oldMemberQuestionId', opt.oldMemberQuestionId ?? null);
+
       const query = `
         UPDATE dbo.questions_mapping
         SET member_question_id = @memberQuestionId,
@@ -135,18 +162,13 @@ export const updateQuestionsMappingReviewDao = async ({
         END
       `;
 
-      request.input("questionId", opt.questionId);
-      request.input("qualificationId", opt.qualificationId);
-      request.input("memberQuestionId", opt.memberQuestionId ?? null);
-      request.input("oldMemberQuestionId", opt.oldMemberQuestionId ?? null);
-
       const result = await request.query(query);
       updatedRows.push(result);
     }
 
     return updatedRows;
   } catch (error) {
-    console.error("Error in updateQuestionsMappingReviewDao:", error);
+    console.error('Error in updateQuestionsMappingReviewDao:', error);
     throw error;
   }
 };
