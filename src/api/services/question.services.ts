@@ -1,4 +1,4 @@
-import { getMappingQuestionsDao, getQuestionsMappingReviewDao, updateQuestionsMappingReviewDao } from "../dao/question.dao";
+import { getMappingQuestionsDao, getQuestionsMappingReviewDao, updateQuestionsMappingReviewDao, createQuestionsMappingReviewDao } from "../dao/question.dao";
 
 export const getMappingQuestionsService = async (queryData: { memberType: string; memberId: number; langCode: number }) => {
   try {
@@ -35,8 +35,9 @@ export const getQuestionsMappingReviewService = async (queryData: { memberType: 
 
 
 export const updateQuestionsMappingReviewService = async (bodyData: {
-  memberId: number;
+  memberId: string; // DB में हो सकता है string भी काम कर जाए
   memberType: string;
+  langCode: number;
   optionData: any[];
 }) => {
   try {
@@ -49,6 +50,33 @@ export const updateQuestionsMappingReviewService = async (bodyData: {
     return { status: 200, success: true, data: result };
   } catch (error) {
     console.error("Error in updateQuestionsMappingReviewService:", error);
+    throw error;
+  }
+};
+
+export const createQuestionsMappingReviewService = async (bodyData: {
+  memberId: number;
+  memberType: string;
+  optionData: any[];
+  createdBy: number;
+}) => {
+  try {
+    const result = await createQuestionsMappingReviewDao(bodyData);
+
+    if (!result || !result.success) {
+      return { status: 400, success: false, message: result?.message || 'Creation failed', data: [] };
+    }
+
+    return {
+      status: 200,
+      success: true,
+      message: result.message,
+      data: {
+        affectedRows: result.affectedRows,
+      },
+    };
+  } catch (error) {
+    console.error("Error in createQuestionsMappingReviewService:", error);
     throw error;
   }
 };
