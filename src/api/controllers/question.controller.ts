@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { QUESTION_MESSAGES } from "../constants/messages";
-import { getMappingQuestionsService, getQuestionsMappingReviewService, updateQuestionsMappingReviewService, createQuestionsMappingReviewService } from "../services/question.services";
+import { QUALIFICATION_MESSAGES, QUESTION_MESSAGES } from "../constants/messages";
+import { getMappingQuestionsService, getQuestionsMappingReviewService, updateQuestionsMappingReviewService, createQuestionsMappingReviewService, getAllOptionsById, createMappingQuestionService, updateOptionsValueByQID } from "../services/question.services";
 
 // Extend Express Request interface to include 'user'
 declare global {
@@ -13,6 +13,19 @@ declare global {
       user?: User;
     }
   }
+}
+
+
+export interface MappingReviewPayload {
+  memberId: number;
+  memberType: string;
+  createdBy?: number;
+  optionData: {
+    questionId: number;
+    qualificationId: number;
+    memberQuestionId?: number | null;
+    qualificationMappingId?: number | null;
+  }[];
 }
 
 export const getMappingQuestionsController = async (req: Request, res: Response) => {
@@ -72,22 +85,10 @@ export const createQuestionsMappingReviewController = async (req: Request, res: 
     const body = req.body || {};
     const { memberId, memberType, optionData } = body;
 
-    // ✅ Optional: fallback for createdBy if authentication is not set up
-    const createdBy = req.user?.id || 0;
-
-    // ✅ Validate required fields
-    if (!memberId || !memberType || !Array.isArray(optionData)) {
-      return res.sendError(
-        {},
-        "Invalid request body: memberId, memberType and optionData are required"
-      );
-    }
-
     const result = await createQuestionsMappingReviewService({
       memberId,
       memberType,
       optionData,
-      createdBy,
     });
 
     // ✅ Check service response
@@ -106,4 +107,46 @@ export const createQuestionsMappingReviewController = async (req: Request, res: 
   }
 };
 
+export const getAllOptions = async (req: Request, res: Response) => {
+  try {
+    const { memberType, memberId, langCode, questionId } = req.query;
+    const queryData = {
+      memberType: String(memberType),
+      memberId: Number(memberId),
+      langCode: Number(langCode),
+      questionId: Number(questionId)
+    };
+    const result = await getAllOptionsById(queryData);
+    return res.sendSuccess(result, QUESTION_MESSAGES.REVIEW_MAPPING_FETCH_SUCCESS);
+  } catch (err: any) {
+    return res.sendError(err, QUESTION_MESSAGES.REVIEW_MAPPING_FETCH_FAILED);
+  }
+};
 
+
+export const updateOptionsValue = async (req, res) => {
+  try {
+    const bodyData = req.body; // { memberType, memberId, langCode, optionData }
+
+    const result = await updateOptionsValueByQID(bodyData);
+
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error in updateQuestionsMappingReviewController:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+export const createMappingQualificationsQuery = async (req: Request, res: Response) => {
+  try {
+    const bodyData = req.body;
+
+    const result = await createMappingQuestionService(bodyData);
+
+    return res.sendSuccess(result, QUESTION_MESSAGES.QUALIFICATION_CREATED_SUCCESS);
+  } catch (err: any) {
+    console.error("Error in createMappingQualificationsQueryController:", err);
+    return res.sendError(err, QUESTION_MESSAGES.QUALIFICATION_CREATED_FAILED);
+  }
+};

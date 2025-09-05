@@ -60,4 +60,6 @@ export const QUESTION_MESSAGES = {
   REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch question review mapping",
   REVIEW_MAPPING_UPDATE_SUCCESS: "Review mapping updated successfully",
   REVIEW_MAPPING_UPDATE_FAILED: "Failed to update review mapping",
+  QUALIFICATION_CREATED_SUCCESS: "Qualification mapping created successfully.",
+  QUALIFICATION_CREATED_FAILED: "Failed to create qualification mapping.",
 };
