@@ -24,6 +24,7 @@ import {
   getAllOptions,
   createMappingQualificationsQuery,
   updateOptionsValue,
+  getOptionQueryReviewMappingController,
 } from "../controllers/question.controller";
 
 const questionRouter = Router();
@@ -57,6 +58,8 @@ questionRouter.get("/getAnswersByQID", getAllOptions);
 
 // Update options by question ID
 questionRouter.put("/updateAnswersByQID", updateOptionsValue);
+questionRouter.put("/getOptionQueryReviewMapping", getOptionQueryReviewMappingController);
+
 
 /**
  * -----------------------------

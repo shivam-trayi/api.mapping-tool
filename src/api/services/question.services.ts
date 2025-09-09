@@ -141,6 +141,7 @@ import {
   getAllAnswrsListById,
   createMappingQuestionDao,
   updateAnswersMappingDao,
+  getOptionQueryReviewMappingDao,
 } from "../dao/question.dao";
 
 // --------------------- Services ---------------------
@@ -255,6 +256,24 @@ export const createMappingQuestionService = async (bodyData: any) => {
     return { status: 200, success: true, message: result.message };
   } catch (error: any) {
     console.error("Error in createMappingQuestionService:", error.message ?? error);
+    throw error;
+  }
+};
+
+
+
+
+export const getOptionQueryReviewMappingService = async (queryData: any) => {
+  try {
+    const result = await getOptionQueryReviewMappingDao(queryData);
+
+    if (!result || result.length === 0) {
+      return { status: 204, success: false, data: [] };
+    }
+
+    return { status: 200, success: true, data: result };
+  } catch (error) {
+    console.error("Error in getOptionQueryReviewMappingService:", error);
     throw error;
   }
 };

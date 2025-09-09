@@ -86,3 +86,10 @@ export const QUESTION_MESSAGES = {
   QUALIFICATION_CREATED_FAILED: "Failed to create qualification mapping.",
 };
 
+
+export const OPTION_MESSAGES = {
+  OPTION_REVIEW_MAPPING_FETCH_SUCCESS: "Option review mapping fetched successfully",
+  OPTION_REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch option review mapping",
+  OPTION_REVIEW_MAPPING_UPDATE_SUCCESS: "Option review mapping updated successfully",
+  OPTION_REVIEW_MAPPING_UPDATE_FAILED: "Failed to update option review mapping",
+};

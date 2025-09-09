@@ -423,3 +423,54 @@ export const updateAnswersMappingDao = async (bodyData: {
     throw error;
   }
 };
+
+
+export const getOptionQueryReviewMappingDao = async (queryData: {
+  memberId: number;
+  questionId: number;
+}) => {
+  try {
+    const { memberId, questionId } = queryData;
+
+    if (!memberId || !questionId) {
+      return [];
+    }
+
+    const query = `
+      SELECT 
+        am.id,
+        am.answer_id AS answerId,
+        am.question_id AS questionId,
+        am.qualification_id AS qualificationId,
+        am.member_id AS memberId,
+        am.member_type AS memberType,
+        am.member_answer_id AS memberAnswerId,
+        am.qualification_mapping_id AS qualificationMappingId,
+        am.question_mapping_id AS questionMappingId,
+        am.created_at,
+        am.updated_at,
+        am.created_by,
+        am.updated_by,
+        am.old_member_answer_id AS oldMemberAnswerId
+      FROM dbo.answers_mapping am
+      WHERE am.member_id = @memberId
+        AND am.question_id = @questionId;
+    `;
+
+    const request = pool.request();
+    request.input("memberId", memberId);
+    request.input("questionId", questionId);
+
+    const result = await request.query(query);
+
+    console.log("DAO Debug (Option Query Review Mapping) =>", result.recordset.length, "rows", {
+      memberId,
+      questionId,
+    });
+
+    return result.recordset;
+  } catch (error) {
+    console.error("Error in getOptionQueryReviewMappingDao:", error);
+    throw error;
+  }
+};

@@ -269,7 +269,7 @@
 
 
 import { Request, Response } from "express";
-import { QUESTION_MESSAGES } from "../constants/messages";
+import { OPTION_MESSAGES, QUESTION_MESSAGES } from "../constants/messages";
 import {
   getMappingQuestionsService,
   getQuestionsMappingReviewService,
@@ -278,6 +278,7 @@ import {
   getAllOptionsById,
   createMappingQuestionService,
   updateOptionsValueByQID,
+  getOptionQueryReviewMappingService,
 } from "../services/question.services";
 
 declare global {
@@ -388,5 +389,19 @@ export const createMappingQualificationsQuery = async (req: Request, res: Respon
   } catch (err: any) {
     console.error("Error in createMappingQualificationsQueryController:", err.message ?? err);
     return res.sendError(err, QUESTION_MESSAGES.QUALIFICATION_CREATED_FAILED);
+  }
+};
+
+
+export const getOptionQueryReviewMappingController = async (req: Request, res: Response) => {
+  try {
+    const queryData = req.query;
+
+    const result = await getOptionQueryReviewMappingService(queryData);
+
+    return res.sendSuccess(result, OPTION_MESSAGES.OPTION_REVIEW_MAPPING_FETCH_SUCCESS);
+  } catch (error: any) {
+    console.error("Error in getOptionQueryReviewMappingController:", error.message ?? error);
+    return res.sendError(error, OPTION_MESSAGES.OPTION_REVIEW_MAPPING_FETCH_FAILED);
   }
 };
