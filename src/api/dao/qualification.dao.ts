@@ -78,12 +78,30 @@ export const createQualificationsMappingDao = async (
         qualification_id,
         member_id,
         member_type,
-        constantId,
+        constantId, // ye hoga naya mapped value
         created_by = null,
         updated_by = null,
-        old_member_qualification_id = null,
       } = data;
 
+      // Step 1: Pehle check karo ki koi purana mapping already exist karta hai ya nahi
+      const existingQuery = `
+        SELECT TOP 1 member_qualification_id 
+        FROM dbo.qualifications_mapping
+        WHERE qualification_id = @qualification_id 
+          AND member_id = @member_id
+      `;
+
+      const existingReq = pool.request();
+      existingReq.input("qualification_id", qualification_id);
+      existingReq.input("member_id", member_id);
+      const existingResult = await existingReq.query(existingQuery);
+
+      let oldMappedId: number | null = null;
+      if (existingResult.recordset.length > 0) {
+        oldMappedId = existingResult.recordset[0].member_qualification_id;
+      }
+
+      // Step 2: Insert/Update Query
       const query = `
         IF EXISTS (
           SELECT 1 
@@ -93,41 +111,40 @@ export const createQualificationsMappingDao = async (
         BEGIN
           UPDATE dbo.qualifications_mapping
           SET 
+            old_member_qualification_id = @old_member_qualification_id,
             member_qualification_id = @member_qualification_id,
             updated_by = @updated_by,
-            old_member_qualification_id = @old_member_qualification_id,
             updated_at = GETDATE()
           WHERE qualification_id = @qualification_id AND member_id = @member_id;
         END
         ELSE
         BEGIN
           INSERT INTO dbo.qualifications_mapping
-            (qualification_id, member_id, member_type, member_qualification_id, created_at, is_active, created_by, updated_by, old_member_qualification_id)
+            (qualification_id, member_id, member_type, member_qualification_id, old_member_qualification_id, created_at, is_active, created_by, updated_by)
           VALUES
-            (@qualification_id, @member_id, @member_type, @member_qualification_id, GETDATE(), 1, @created_by, @updated_by, @old_member_qualification_id);
+            (@qualification_id, @member_id, @member_type, @member_qualification_id, @old_member_qualification_id, GETDATE(), 1, @created_by, @updated_by);
         END
       `;
 
       const request = pool.request();
-      request.input('qualification_id', qualification_id);
-      request.input('member_id', member_id);
-      request.input('member_type', member_type);
-      request.input('member_qualification_id', constantId);
-      request.input('created_by', created_by ?? 11);
-      request.input('updated_by', updated_by ?? 11);
-      request.input(
-        'old_member_qualification_id',
-        old_member_qualification_id ?? 11
-      );
+      request.input("qualification_id", qualification_id);
+      request.input("member_id", member_id);
+      request.input("member_type", member_type);
+      request.input("member_qualification_id", constantId); // naya mapped id
+      request.input("old_member_qualification_id", oldMappedId); // purana mapped id agar hai to
+      request.input("created_by", created_by ?? 11);
+      request.input("updated_by", updated_by ?? 11);
 
       await request.query(query);
     }
 
     return { success: true };
   } catch (error) {
+    console.error("Error in createQualificationsMappingDao:", error);
     throw error;
   }
 };
+
 
 // Existing DAO methods remain unchanged...
 
@@ -139,7 +156,7 @@ export const getQualificationDemographicsMappingReviewDao = async (queryData: {
     const { memberId } = queryData;
 
     if (!memberId) {
-      return []; // Return empty if memberId not provided
+      return [];
     }
 
     const query = `
@@ -150,6 +167,7 @@ export const getQualificationDemographicsMappingReviewDao = async (queryData: {
         qm.member_id,
         qm.member_type,
         qm.member_qualification_id,
+        qm.old_member_qualification_id, -- add this
         qm.created_at,
         qm.is_active
       FROM dbo.qualifications_mapping qm
@@ -165,13 +183,11 @@ export const getQualificationDemographicsMappingReviewDao = async (queryData: {
     const result = await request.query(query);
     return result.recordset;
   } catch (error) {
-    console.error(
-      'Error in getQualificationDemographicsMappingReviewDao:',
-      error
-    );
+    console.error('Error in getQualificationDemographicsMappingReviewDao:', error);
     throw error;
   }
 };
+
 
 export const saveDemographicsMappingReviewInDB = async (
   bodyData: QualificationsMappingData[]

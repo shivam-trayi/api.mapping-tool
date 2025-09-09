@@ -132,12 +132,10 @@ export const updateQuestionsMappingReviewDao = async ({
     const updatedRows: any[] = [];
 
     for (const opt of optionData) {
-      // map frontend keys → db keys
       const questionId = opt.MasterQueryId;
-      const qualificationId = opt.MasterDemoId ?? null; // अगर भेजना है
+      const qualificationId = opt.MasterDemoId ?? null;
       const memberQuestionId = opt.MemberQueryId || null;
 
-      // अगर questionId missing है तो skip
       if (!questionId) {
         console.warn("Skipping invalid mapping:", opt);
         continue;
@@ -151,19 +149,24 @@ export const updateQuestionsMappingReviewDao = async ({
       request.input("memberQuestionId", memberQuestionId);
 
       const query = `
-        UPDATE dbo.questions_mapping
-        SET member_question_id = @memberQuestionId,
-            updated_at = GETDATE()
-        WHERE question_id = @questionId
-          AND member_id = @memberId
-          AND member_type = @memberType;
+UPDATE dbo.questions_mapping
+SET 
+    old_member_question_id = member_question_id,
+    member_question_id = @memberQuestionId,
+    updated_at = GETDATE()
+WHERE question_id = @questionId
+  AND member_id = @memberId
+  AND member_type = @memberType;
 
-        IF @@ROWCOUNT = 0
-        BEGIN
-          INSERT INTO dbo.questions_mapping
-          (question_id, qualification_id, member_id, member_type, member_question_id, created_at)
-          VALUES (@questionId, @qualificationId, @memberId, @memberType, @memberQuestionId, GETDATE());
-        END
+IF @@ROWCOUNT = 0
+BEGIN
+  INSERT INTO dbo.questions_mapping
+  (question_id, qualification_id, member_id, member_type, member_question_id, old_member_question_id, created_at)
+  VALUES (@questionId, @qualificationId, @memberId, @memberType, @memberQuestionId, NULL, GETDATE());
+END
+
+
+
       `;
 
       const result = await request.query(query);
@@ -349,10 +352,10 @@ export const updateAnswersMappingDao = async (bodyData: {
   memberType: string;
   questionId: number;
   langCode: number;
-  qualificationId: number; // 👈 नया भी आ रहा है
+  qualificationId: number;
   options: Array<{
-    answerId: number;        // DB answer_id
-    constantId: string | number | null; // mapped answer id
+    answerId: number;
+    constantId: string | number | null;
   }>;
 }) => {
   try {
@@ -375,7 +378,7 @@ export const updateAnswersMappingDao = async (bodyData: {
       request.input("memberType", 'customer');
       request.input("questionId", questionId);
       request.input("qualificationId", qualificationId);
-      request.input("answerId", opt.answerId); // 👈 payload से आ रहा है
+      request.input("answerId", opt.answerId);
       request.input("memberAnswerId", opt.constantId ?? null);
       request.input("langCode", langCode);
 
@@ -389,7 +392,8 @@ export const updateAnswersMappingDao = async (bodyData: {
         )
         BEGIN
           UPDATE dbo.answers_mapping
-          SET member_answer_id = @memberAnswerId,
+          SET old_member_answer_id = member_answer_id, 
+        member_answer_id = @memberAnswerId, 
               updated_at = GETDATE()
           WHERE question_id = @questionId
             AND answer_id = @answerId

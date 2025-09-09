@@ -35,7 +35,7 @@ export const getQuestionsMappingReviewService = async (queryData: { memberType: 
 
 
 export const updateQuestionsMappingReviewService = async (bodyData: {
-  memberId: string; // DB में हो सकता है string भी काम कर जाए
+  memberId: string; 
   memberType: string;
   langCode: number;
   optionData: any[];
@@ -97,7 +97,7 @@ export const getAllOptionsById = async (queryData: { memberType: string; memberI
 
 
 export const updateOptionsValueByQID = async (bodyData: {
-  memberId: string; // DB में हो सकता है string भी काम कर जाए
+  memberId: string; 
   memberType: string;
   langCode: number;
   optionData: any[];
