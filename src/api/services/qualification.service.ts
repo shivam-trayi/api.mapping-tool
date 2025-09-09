@@ -59,7 +59,7 @@ export const getQualifications = async (page = 1, limit = 10, search = "") => {
 
 // Create mapping
 export const createDemographicsMapping = async (
-  bodyData: QualificationsMappingData[] // <-- now an array
+  bodyData: QualificationsMappingData[] 
 ): Promise<CreateMappingResponse> => {
   try {
     await qualificationDao.createQualificationsMappingDao(bodyData);
@@ -90,7 +90,7 @@ export const getQualificationDemographicsMappingReviewService = async (queryData
 
 
 export const createDemographicsMappingReview = async (
-  bodyData: QualificationsMappingData[] // <-- now an array
+  bodyData: QualificationsMappingData[] 
 ): Promise<CreateMappingResponse> => {
   try {
     await qualificationDao.saveDemographicsMappingReviewInDB(bodyData);

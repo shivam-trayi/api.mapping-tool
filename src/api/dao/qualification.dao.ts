@@ -78,7 +78,7 @@ export const createQualificationsMappingDao = async (
         qualification_id,
         member_id,
         member_type,
-        constantId, // ye hoga naya mapped value
+        constantId, 
         created_by = null,
         updated_by = null,
       } = data;
@@ -130,8 +130,8 @@ export const createQualificationsMappingDao = async (
       request.input("qualification_id", qualification_id);
       request.input("member_id", member_id);
       request.input("member_type", member_type);
-      request.input("member_qualification_id", constantId); // naya mapped id
-      request.input("old_member_qualification_id", oldMappedId); // purana mapped id agar hai to
+      request.input("member_qualification_id", constantId);
+      request.input("old_member_qualification_id", oldMappedId);
       request.input("created_by", created_by ?? 11);
       request.input("updated_by", updated_by ?? 11);
 
@@ -145,8 +145,6 @@ export const createQualificationsMappingDao = async (
   }
 };
 
-
-// Existing DAO methods remain unchanged...
 
 // Get mapping review for a member from qualifications_mapping table
 export const getQualificationDemographicsMappingReviewDao = async (queryData: {

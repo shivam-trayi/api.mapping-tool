@@ -53,13 +53,36 @@ export const QUALIFICATION_MESSAGES = {
 
 } as const;
 
+// export const QUESTION_MESSAGES = {
+//   QUESTIONS_FETCH_SUCCESS: "Questions mapping fetched successfully",
+//   QUESTIONS_FETCH_FAILED: "Failed to fetch questions mapping",
+//   REVIEW_MAPPING_FETCH_SUCCESS: "Question review mapping fetched successfully",
+//   REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch question review mapping",
+//   REVIEW_MAPPING_UPDATE_SUCCESS: "Review mapping updated successfully",
+//   REVIEW_MAPPING_UPDATE_FAILED: "Failed to update review mapping",
+//   QUALIFICATION_CREATED_SUCCESS: "Qualification mapping created successfully.",
+//   QUALIFICATION_CREATED_FAILED: "Failed to create qualification mapping.",
+// };
+
 export const QUESTION_MESSAGES = {
+  // Questions messages
   QUESTIONS_FETCH_SUCCESS: "Questions mapping fetched successfully",
   QUESTIONS_FETCH_FAILED: "Failed to fetch questions mapping",
+
+  // Review mapping messages
   REVIEW_MAPPING_FETCH_SUCCESS: "Question review mapping fetched successfully",
   REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch question review mapping",
-  REVIEW_MAPPING_UPDATE_SUCCESS: "Review mapping updated successfully",
-  REVIEW_MAPPING_UPDATE_FAILED: "Failed to update review mapping",
+  REVIEW_MAPPING_UPDATE_SUCCESS: "Question review mapping updated successfully",
+  REVIEW_MAPPING_UPDATE_FAILED: "Failed to update question review mapping",
+
+  // Option-specific messages
+  OPTIONS_FETCH_SUCCESS: "Options fetched successfully",
+  OPTIONS_FETCH_FAILED: "Failed to fetch options",
+  OPTIONS_UPDATE_SUCCESS: "Options updated successfully",
+  OPTIONS_UPDATE_FAILED: "Failed to update options",
+
+  // Qualification messages
   QUALIFICATION_CREATED_SUCCESS: "Qualification mapping created successfully.",
   QUALIFICATION_CREATED_FAILED: "Failed to create qualification mapping.",
 };
+
