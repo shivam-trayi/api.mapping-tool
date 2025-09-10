@@ -10,6 +10,8 @@ import {
   updateOptionsValueByQID,
   getOptionQueryReviewMappingService,
   updateQuestionsConstantMappingReviewService,
+  insertAnswerMappingService,
+  updateAnswerMappingService,
 } from "../services/question.services";
 
 declare global {
@@ -141,3 +143,28 @@ export const updateQuestionsConstantMappingReviewController = async (req: Reques
   }
 };
 
+
+export const insertAnswerMappingReviewController = async (req: Request, res: Response) => {
+  try {
+    const bodyData = req.body;
+
+    const result = await insertAnswerMappingService(bodyData);
+
+    return res.sendSuccess(result, OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_SUCCESS);
+  } catch (error: any) {
+    return res.sendError(error, OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_FAILED);
+  }
+};
+
+
+export const updateAnswerMappingReviewController = async (req: Request, res: Response) => {
+  try {
+    const bodyData = req.body;
+
+    const result = await updateAnswerMappingService(bodyData);
+
+    return res.sendSuccess(result, OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_SUCCESS);
+  } catch (error: any) {
+    return res.sendError(error, OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_FAILED);
+  }
+};

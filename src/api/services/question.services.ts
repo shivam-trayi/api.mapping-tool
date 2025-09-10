@@ -1,3 +1,4 @@
+import { OPTION_MESSAGES } from "../constants/messages";
 import {
   getMappingQuestionsDao,
   getQuestionsMappingReviewDao,
@@ -8,6 +9,8 @@ import {
   updateAnswersMappingDao,
   getOptionQueryReviewMappingDao,
   updateQuestionsConstantMappingReviewDao,
+  insertAnswerMappingDao,
+  updateAnswerMappingDao,
 } from "../dao/question.dao";
 import { UpdateConstantMappingReviewDaoPayload, UpdateConstantMappingReviewPayload } from "../interfaces/qualification";
 
@@ -166,4 +169,50 @@ export const updateQuestionsConstantMappingReviewService = async (
   } catch (error: any) {
     throw error;
   }
+};
+
+
+
+
+export const insertAnswerMappingService = async (bodyData: any) => {
+  try {
+    const result = await insertAnswerMappingDao(bodyData);
+
+    if (!result || !result.success) {
+      return { status: 204, success: false, message: result?.message ?? OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_FAILED };
+    }
+
+    return { status: 200, success: true, message: OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_SUCCESS };
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+
+
+
+export interface UpdateAnswerMappingPayload {
+  memberId: number | string;
+  memberType: string;
+  optionData: {
+    questionId: number;
+    qualificationId: number;
+    member_answer_id: string; // value to update
+  }[];
+}
+
+export const updateAnswerMappingService = async (payload: UpdateAnswerMappingPayload) => {
+  // Loop through all optionData items and update individually
+  const updateResults = [];
+  for (const option of payload.optionData) {
+    const result = await updateAnswerMappingDao({
+      memberId: payload.memberId,
+      memberType: payload.memberType,
+      questionId: option.questionId,
+      qualificationId: option.qualificationId,
+      member_answer_id: option.member_answer_id,
+    });
+    updateResults.push(result);
+  }
+  return updateResults;
 };

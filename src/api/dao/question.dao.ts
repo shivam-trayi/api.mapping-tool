@@ -1,4 +1,5 @@
 import { pool } from '../../config/database/connection';
+import { OPTION_MESSAGES } from '../constants/messages';
 import { UpdateConstantMappingReviewDaoPayload } from '../interfaces/qualification';
 
 export const getMappingQuestionsDao = async (queryData: {
@@ -541,5 +542,132 @@ export const updateQuestionsConstantMappingReviewDao = async (
   } catch (error: any) {
     console.error("DAO error:", error);
     throw new Error(`DAO failed: ${error.message}`);
+  }
+};
+
+
+export const insertAnswerMappingDao = async (bodyData: any) => {
+  try {
+    const { memberId, memberType, optionData } = bodyData;
+
+    if (!memberId) {
+      return { success: false, message: "memberId is required" };
+    }
+
+    if (!optionData || optionData.length === 0) {
+      return { success: false, message: "No option data provided." };
+    }
+
+    let insertedCount = 0;
+
+    for (const item of optionData) {
+      const request = pool.request();
+
+      request.input("answerId", item.answerId);
+      request.input("questionId", item.questionId);
+      request.input("qualificationId", item.qualificationId);
+      request.input("memberId", memberId);
+      request.input("memberType", memberType);
+      request.input("memberAnswerId", item.member_answer_id ?? null);
+      request.input("qualificationMappingId", item.qualificationMappingId ?? null);
+      request.input("questionMappingId", null);
+      request.input("createdBy", 1);
+      request.input("updatedBy", 1);
+
+      const result = await request.query(`
+        INSERT INTO [staging_gswebsurveys].[dbo].[review_answers_mapping]
+          (
+            answer_id,
+            question_id,
+            qualification_id,
+            member_id,
+            member_type,
+            member_answer_id,
+            qualification_mapping_id,
+            question_mapping_id,
+            created_at,
+            updated_at,
+            created_by,
+            updated_by
+          )
+        VALUES
+          (
+            @answerId,
+            @questionId,
+            @qualificationId,
+            @memberId,
+            @memberType,
+            @memberAnswerId,
+            @qualificationMappingId,
+            @questionMappingId,
+            GETDATE(),
+            GETDATE(),
+            @createdBy,
+            @updatedBy
+          )
+      `);
+
+      if (result.rowsAffected[0] && result.rowsAffected[0] > 0) insertedCount++;
+    }
+
+    if (insertedCount === 0) {
+      return { success: false, message: "Failed to insert option review mapping" };
+    }
+
+    return { success: true, message: "Option review mapping inserted successfully" };
+  } catch (error) {
+    console.error("insertAnswerMappingDao Error:", error);
+    return { success: false, message: "Failed to insert option review mapping" };
+  }
+};
+
+
+
+
+export interface UpdateAnswerMappingDaoPayload {
+  memberId: number | string;
+  memberType: string;
+  questionId: number;
+  qualificationId: number;
+  member_answer_id: string | null;
+}
+
+export const updateAnswerMappingDao = async (
+  bodyData: UpdateAnswerMappingDaoPayload
+) => {
+  const { memberId, memberType, questionId, qualificationId, member_answer_id } = bodyData;
+
+  if (!memberId || !memberType || !questionId || !qualificationId) {
+    return { success: false, message: "Missing required fields", rowsAffected: 0 };
+  }
+
+  const request = pool.request();
+  request.input("memberId", memberId);
+  request.input("memberType", memberType);
+  request.input("questionId", questionId);
+  request.input("qualificationId", qualificationId);
+  request.input("memberAnswerId", member_answer_id);
+
+  const query = `
+    UPDATE [staging_gswebsurveys].[dbo].[answers_mapping]
+    SET old_member_answer_id = member_answer_id,
+        member_answer_id = @memberAnswerId,
+        updated_at = GETDATE()
+    WHERE question_id = @questionId
+      AND qualification_id = @qualificationId
+      AND member_id = @memberId
+      AND member_type = @memberType;
+  `;
+
+  try {
+    const result = await request.query(query);
+    return {
+      success: true,
+      rowsAffected: result.rowsAffected[0],
+      questionId,
+    };
+  } catch (error: any) {
+    console.error(`SQL error for questionId ${questionId}:`, error);
+    return { success: false, error: error.message, questionId };
   }
 };
