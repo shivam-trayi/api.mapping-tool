@@ -1,5 +1,5 @@
 import { pool } from '../../config/database/connection';
-import { QualificationsMappingData } from '../interfaces/qualification';
+import { QualificationConstantUpdatePayload, QualificationConstantUpdateResponse, QualificationsMappingData } from '../interfaces/qualification';
 
 // Get paginated qualifications with search
 export const getAllQualifications = async (
@@ -234,3 +234,67 @@ export const saveDemographicsMappingReviewInDB = async (
     throw error;
   }
 };
+
+
+// export const updateQualificationConstantIdDao = async (
+//   bodyData: QualificationConstantUpdatePayload
+// ): Promise<QualificationConstantUpdateResponse> => {
+//   const { bodyData: optionData } = bodyData;
+
+//   const results: any[] = [];
+
+//   for (const item of optionData) {
+//     const qualificationId = Number(item.qualificationId);
+//     const constantId = item.constantId ? String(item.constantId) : null;
+//     const memberId = Number(item.memberId);
+
+//     if (!qualificationId || !memberId) {
+//       results.push({ qualificationId, success: false, error: "Invalid data" });
+//       continue;
+//     }
+
+//     try {
+//       const request = pool.request();
+//       request.input("qualificationId", qualificationId);
+//       request.input("constantId", constantId);
+//       request.input("memberId", memberId);
+
+//       const query = `
+//         UPDATE [staging_gswebsurveys].[dbo].[qualification_mapping]
+//         SET constant_id = @constantId,
+//             updated_at = GETDATE()
+//         WHERE qualification_id = @qualificationId
+//           AND member_id = @memberId;
+
+//         IF @@ROWCOUNT = 0
+//         BEGIN
+//           INSERT INTO [staging_gswebsurveys].[dbo].[qualification_mapping]
+//             (qualification_id, member_id, constant_id, created_at)
+//           VALUES
+//             (@qualificationId, @memberId, @constantId, GETDATE());
+//         END
+//       `;
+
+//       const result = await request.query(query);
+
+//       results.push({
+//         qualificationId,
+//         success: true,
+//         rowsAffected: result.rowsAffected[0] ?? 0
+//       });
+//     } catch (error: any) {
+//       results.push({
+//         qualificationId,
+//         success: false,
+//         error: error.message
+//       });
+//     }
+//   }
+
+//   return {
+//     success: true,
+//     message: "Qualification constant IDs updated successfully.",
+//     affectedRows: results.length,
+//     results
+//   };
+// };

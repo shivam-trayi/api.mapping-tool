@@ -25,6 +25,7 @@ import {
   createMappingQualificationsQuery,
   updateOptionsValue,
   getOptionQueryReviewMappingController,
+  updateQuestionsConstantMappingReviewController,
 } from "../controllers/question.controller";
 
 const questionRouter = Router();
@@ -46,6 +47,9 @@ questionRouter.put("/updateQuestionReviewMapping", updateQuestionsMappingReviewC
 
 // Create new question review mapping
 questionRouter.post("/createQuestionReviewMapping", createQuestionsMappingReviewController);
+
+questionRouter.put("/updateConstantQuestionReviewMapping", updateQuestionsConstantMappingReviewController);
+
 
 /**
  * -----------------------------

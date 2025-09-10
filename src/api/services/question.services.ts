@@ -1,138 +1,3 @@
-// import { getMappingQuestionsDao, getQuestionsMappingReviewDao, updateQuestionsMappingReviewDao, createQuestionsMappingReviewDao, getAllAnswrsListById, createMappingQuestionDao, updateAnswersMappingDao } from "../dao/question.dao";
-
-// export const getMappingQuestionsService = async (queryData: { memberType: string; memberId: number; langCode: number }) => {
-//   try {
-//     const result = await getMappingQuestionsDao(queryData);
-
-//     if (!result || result.length === 0) {
-//       return { status: 404, success: false, data: [] };
-//     }
-
-//     return { status: 200, success: true, data: result };
-//   } catch (error) {
-//     console.error("Error in getMappingQuestionsService:", error);
-//     throw error;
-//   }
-// };
-
-
-// export const getQuestionsMappingReviewService = async (queryData: { memberType: string; memberId: number; langCode: number }) => {
-//   try {
-//     const result = await getQuestionsMappingReviewDao(queryData);
-
-//     if (!result || result.length === 0) {
-//       return { status: 404, success: false, data: [] };
-//     }
-
-//     return { status: 200, success: true, data: result };
-//   } catch (error) {
-//     console.error("Error in getQuestionsMappingReviewService:", error);
-//     throw error;
-//   }
-// };
-
-
-
-
-// export const updateQuestionsMappingReviewService = async (bodyData: {
-//   memberId: string; 
-//   memberType: string;
-//   langCode: number;
-//   optionData: any[];
-// }) => {
-//   try {
-//     const result = await updateQuestionsMappingReviewDao(bodyData);
-
-//     if (!result || result.length === 0) {
-//       return { status: 404, success: false, data: [] };
-//     }
-
-//     return { status: 200, success: true, data: result };
-//   } catch (error) {
-//     console.error("Error in updateQuestionsMappingReviewService:", error);
-//     throw error;
-//   }
-// };
-
-// export const createQuestionsMappingReviewService = async (bodyData: {
-//   memberId: number;
-//   memberType: string;
-//   optionData: any[];
-// }) => {
-//   try {
-//     const result = await createQuestionsMappingReviewDao(bodyData);
-
-//     if (!result || !result.success) {
-//       return { status: 400, success: false, message: result?.message || 'Creation failed', data: [] };
-//     }
-
-//     return {
-//       status: 200,
-//       success: true,
-//       message: result.message,
-//       data: {
-//         affectedRows: result.affectedRows,
-//       },
-//     };
-//   } catch (error) {
-//     console.error("Error in createQuestionsMappingReviewService:", error);
-//     throw error;
-//   }
-// };
-
-// export const getAllOptionsById = async (queryData: { memberType: string; memberId: number; langCode: number; questionId: Number }) => {
-//   try {
-//     const result = await getAllAnswrsListById(queryData);
-
-//     if (!result || result.length === 0) {
-//       return { status: 404, success: false, data: [] };
-//     }
-
-//     return { status: 200, success: true, data: result };
-//   } catch (error) {
-//     console.error("Error in getQuestionsMappingReviewService:", error);
-//     throw error;
-//   }
-// };
-
-
-// export const updateOptionsValueByQID = async (bodyData: {
-//   memberId: string; 
-//   memberType: string;
-//   langCode: number;
-//   optionData: any[];
-// }) => {
-//   try {
-//     const result = await updateAnswersMappingDao(bodyData);
-
-//     if (!result || result.length === 0) {
-//       return { status: 404, success: false, data: [] };
-//     }
-
-//     return { status: 200, success: true, data: result };
-//   } catch (error) {
-//     console.error("Error in updateQuestionsMappingReviewService:", error);
-//     throw error;
-//   }
-// };
-
-
-// export const createMappingQuestionService = async (bodyData: any) => {
-//   try {
-//     const result = await createMappingQuestionDao(bodyData);
-
-//     if (result && result.success) {
-//       return { status: 200, success: true, message: result.message };
-//     }
-//     return { status: 204, success: false, message: result.message };
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-
-
-
 import {
   getMappingQuestionsDao,
   getQuestionsMappingReviewDao,
@@ -142,7 +7,9 @@ import {
   createMappingQuestionDao,
   updateAnswersMappingDao,
   getOptionQueryReviewMappingDao,
+  updateQuestionsConstantMappingReviewDao,
 } from "../dao/question.dao";
+import { UpdateConstantMappingReviewDaoPayload, UpdateConstantMappingReviewPayload } from "../interfaces/qualification";
 
 // --------------------- Services ---------------------
 
@@ -154,7 +21,6 @@ export const getMappingQuestionsService = async (queryData: { memberType: string
     }
     return { status: 200, success: true, data: result };
   } catch (error: any) {
-    console.error("Error in getMappingQuestionsService:", error.message ?? error);
     throw error;
   }
 };
@@ -167,13 +33,12 @@ export const getQuestionsMappingReviewService = async (queryData: { memberType: 
     }
     return { status: 200, success: true, data: result };
   } catch (error: any) {
-    console.error("Error in getQuestionsMappingReviewService:", error.message ?? error);
     throw error;
   }
 };
 
 export const updateQuestionsMappingReviewService = async (bodyData: {
-  memberId: string; 
+  memberId: string;
   memberType: string;
   langCode: number;
   optionData: any[];
@@ -185,7 +50,6 @@ export const updateQuestionsMappingReviewService = async (bodyData: {
     }
     return { status: 200, success: true, data: result };
   } catch (error: any) {
-    console.error("Error in updateQuestionsMappingReviewService:", error.message ?? error);
     throw error;
   }
 };
@@ -209,7 +73,6 @@ export const createQuestionsMappingReviewService = async (bodyData: {
       },
     };
   } catch (error: any) {
-    console.error("Error in createQuestionsMappingReviewService:", error.message ?? error);
     throw error;
   }
 };
@@ -222,7 +85,6 @@ export const getAllOptionsById = async (queryData: { memberType: string; memberI
     }
     return { status: 200, success: true, data: result };
   } catch (error: any) {
-    console.error("Error in getAllOptionsById:", error.message ?? error);
     throw error;
   }
 };
@@ -242,7 +104,6 @@ export const updateOptionsValueByQID = async (bodyData: {
     }
     return { status: 200, success: true, data: result };
   } catch (error: any) {
-    console.error("Error in updateOptionsValueByQID:", error.message ?? error);
     throw error;
   }
 };
@@ -255,13 +116,9 @@ export const createMappingQuestionService = async (bodyData: any) => {
     }
     return { status: 200, success: true, message: result.message };
   } catch (error: any) {
-    console.error("Error in createMappingQuestionService:", error.message ?? error);
     throw error;
   }
 };
-
-
-
 
 export const getOptionQueryReviewMappingService = async (queryData: any) => {
   try {
@@ -273,7 +130,40 @@ export const getOptionQueryReviewMappingService = async (queryData: any) => {
 
     return { status: 200, success: true, data: result };
   } catch (error) {
-    console.error("Error in getOptionQueryReviewMappingService:", error);
+    throw error;
+  }
+};
+
+
+
+export const updateQuestionsConstantMappingReviewService = async (
+  bodyData: UpdateConstantMappingReviewPayload
+) => {
+  try {
+    if (!bodyData.optionData || bodyData.optionData.length === 0) {
+      throw new Error("No options provided");
+    }
+
+    const daoPayload: UpdateConstantMappingReviewDaoPayload = {
+      memberId: bodyData.memberId,
+      memberType: bodyData.memberType,
+      optionData: bodyData.optionData.map((o) => ({
+        questionId: Number(o.questionId),
+        memberQuestionId:
+          o.memberQuestionId !== undefined && o.memberQuestionId !== null
+            ? Number(o.memberQuestionId)
+            : null,
+      })),
+    };
+
+    const result = await updateQuestionsConstantMappingReviewDao(daoPayload);
+
+    if (!result) {
+      return { status: 404, success: false, data: [], message: "Update failed" };
+    }
+
+    return { status: 200, success: true, data: result };
+  } catch (error: any) {
     throw error;
   }
 };

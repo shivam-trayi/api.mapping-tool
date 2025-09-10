@@ -49,3 +49,15 @@ export const insertQualificationReviewData = async (req: Request, res: Response)
     );
   }
 };
+
+
+// export const updateQualificationConstantIdController = async (req: Request, res: Response) => {
+//   try {
+//     const bodyData = req.body;
+//     const result = await qualificationService.updateQualificationConstantIdService(bodyData);
+
+//     return res.sendSuccess(result, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
+//   } catch (error: any) {
+//     return res.sendError(error, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
+//   }
+// };

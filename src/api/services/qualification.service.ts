@@ -1,5 +1,5 @@
 import * as qualificationDao from "../dao/qualification.dao";
-import { CreateMappingResponse, QualificationsMappingData } from "../interfaces/qualification";
+import { CreateMappingResponse, QualificationConstantUpdatePayload, QualificationConstantUpdateResponse, QualificationsMappingData } from "../interfaces/qualification";
 
 // Get paginated qualifications
 export const getQualifications = async (page = 1, limit = 10, search = "") => {
@@ -59,7 +59,7 @@ export const getQualifications = async (page = 1, limit = 10, search = "") => {
 
 // Create mapping
 export const createDemographicsMapping = async (
-  bodyData: QualificationsMappingData[] 
+  bodyData: QualificationsMappingData[]
 ): Promise<CreateMappingResponse> => {
   try {
     await qualificationDao.createQualificationsMappingDao(bodyData);
@@ -67,7 +67,6 @@ export const createDemographicsMapping = async (
     // If no error, assume rows inserted successfully
     return { status: 200, success: true };
   } catch (error) {
-    console.error("Error in createDemographicsMapping:", error);
     return { status: 500, success: false };
   }
 };
@@ -83,14 +82,13 @@ export const getQualificationDemographicsMappingReviewService = async (queryData
 
     return { status: 200, success: true, data: result };
   } catch (error) {
-    console.error("Error in getQualificationDemographicsMappingReviewService:", error);
     throw error;
   }
 };
 
 
 export const createDemographicsMappingReview = async (
-  bodyData: QualificationsMappingData[] 
+  bodyData: QualificationsMappingData[]
 ): Promise<CreateMappingResponse> => {
   try {
     await qualificationDao.saveDemographicsMappingReviewInDB(bodyData);
@@ -98,7 +96,25 @@ export const createDemographicsMappingReview = async (
     // If no error, assume rows inserted successfully
     return { status: 200, success: true };
   } catch (error) {
-    console.error("Error in createDemographicsMapping:", error);
     return { status: 500, success: false };
   }
 };
+
+
+// interface UpdateQualificationConstantPayload {
+//   memberId: number;
+//   memberType: string;
+//   optionData: {
+//     qualificationId: number;
+//     memberQualificationId: number | null;
+//   }[];
+// }
+// export const updateQualificationConstantIdService = async (
+//   bodyData: QualificationConstantUpdatePayload
+// ): Promise<QualificationConstantUpdateResponse> => {
+//   if (!bodyData.bodyData || bodyData.bodyData.length === 0) {
+//     throw new Error("No qualifications provided");
+//   }
+
+//   return await qualificationDao.updateQualificationConstantIdDao(bodyData);
+// };

@@ -1,4 +1,5 @@
 import { pool } from '../../config/database/connection';
+import { UpdateConstantMappingReviewDaoPayload } from '../interfaces/qualification';
 
 export const getMappingQuestionsDao = async (queryData: {
   memberType: string;
@@ -183,7 +184,7 @@ END
 
 export const createQuestionsMappingReviewDao = async (bodyData: {
   memberId: number;
-  memberType: string; // 👈 ye param aa raha hai but table me nahi hai
+  memberType: string;
   optionData: any[];
 }) => {
   try {
@@ -472,5 +473,73 @@ export const getOptionQueryReviewMappingDao = async (queryData: {
   } catch (error) {
     console.error("Error in getOptionQueryReviewMappingDao:", error);
     throw error;
+  }
+};
+
+
+export const updateQuestionsConstantMappingReviewDao = async (
+  bodyData: UpdateConstantMappingReviewDaoPayload
+) => {
+  const { memberId, memberType, optionData } = bodyData;
+
+  if (!optionData || optionData.length === 0) {
+    return { affectedRows: 0, results: [], message: "No options provided." };
+  }
+
+  const results: any[] = [];
+
+  try {
+    for (const item of optionData) {
+      const questionId = Number(item.questionId);
+      const memberQuestionId =
+        item.memberQuestionId !== null && item.memberQuestionId !== ""
+          ? Number(item.memberQuestionId)
+          : null;
+
+      if (!questionId || !memberId || !memberType) {
+        console.warn("Skipping invalid item:", item);
+        continue;
+      }
+
+      const request = pool.request();
+      request.input("memberId", memberId);
+      request.input("memberType", memberType);
+      request.input("questionId", questionId);
+      request.input("memberQuestionId", memberQuestionId);
+
+      const query = `
+        UPDATE [staging_gswebsurveys].[dbo].[questions_mapping]
+        SET old_member_question_id = member_question_id,
+            member_question_id = @memberQuestionId,
+            updated_at = GETDATE()
+        WHERE question_id = @questionId
+          AND member_id = @memberId
+          AND member_type = @memberType;
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+          INSERT INTO [staging_gswebsurveys].[dbo].[questions_mapping]
+            (question_id, member_id, member_type, member_question_id, created_at)
+          VALUES
+            (@questionId, @memberId, @memberType, @memberQuestionId, GETDATE());
+        END
+      `;
+
+      try {
+        const result = await request.query(query);
+        results.push({ questionId, success: true, rowsAffected: result.rowsAffected[0] });
+      } catch (sqlError: any) {
+        console.error(`SQL error for questionId ${questionId}:`, sqlError);
+        results.push({ questionId, success: false, error: sqlError.message });
+      }
+    }
+
+    return {
+      affectedRows: results.length,
+      results,
+    };
+  } catch (error: any) {
+    console.error("DAO error:", error);
+    throw new Error(`DAO failed: ${error.message}`);
   }
 };
