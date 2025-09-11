@@ -253,7 +253,7 @@ export const saveDemographicsMappingReviewInDB = async (
   bodyData: QualificationsMappingData[]
 ): Promise<QualificationsMappingData[]> => {
   try {
-    const poolConnection = await pool;
+    const poolConnection = pool;
     const insertedRows: QualificationsMappingData[] = [];
 
     for (const row of bodyData) {

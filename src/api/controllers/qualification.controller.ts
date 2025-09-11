@@ -40,7 +40,7 @@ export const getQualificationDemographicsMappingReview = async (req: Request, re
 
 export const insertQualificationReviewData = async (req: Request, res: Response) => {
   try {
-    let bodyData = req.body;
+    let bodyData = req.body.bodyData;
     const result =
       await qualificationService.createDemographicsMappingReview(bodyData);
     return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_SUCCESS);

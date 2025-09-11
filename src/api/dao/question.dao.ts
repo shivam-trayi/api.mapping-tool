@@ -91,8 +91,8 @@ export const getQuestionsMappingReviewDao = async (queryData: {
       LEFT JOIN dbo.questions_mapping qmm 
         ON qmm.question_id = qu.id
       WHERE qm.member_type = 'customer'
-        AND qm.member_id = 3
-        AND qu.language_id = 1
+        AND qm.member_id = ${memberId}
+        AND qu.language_id = ${langCode}
 AND ISNULL(qmm.old_member_question_id, -1) != ISNULL(qmm.member_question_id, -1)
     `;
 
