@@ -52,10 +52,15 @@ export const QUALIFICATION_MESSAGES = {
   QUALIFICATIONS_FETCH_FAILED: "Failed to fetch qualifications",
 
 
-  REVIEW_MAPPING_FETCH_SUCCESS: "Qualifications review mapping fetched successfully",
-  REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch Qualifications review mapping",
-  REVIEW_MAPPING_UPDATE_SUCCESS: "Qualifications review mapping updated successfully",
-  REVIEW_MAPPING_UPDATE_FAILED: "Failed to update Qualifications review mapping",
+  REVIEW_MAPPING_FETCH_SUCCESS: "Qualifications mapping fetched successfully",
+  REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch Qualifications  mapping",
+  REVIEW_MAPPING_UPDATE_SUCCESS: "Qualifications mapping updated successfully",
+  REVIEW_MAPPING_UPDATE_FAILED: "Failed to update Qualifications mapping",
+
+
+  QUALIFICATION_INSERT_SUCCESS: "Qualification inserted successfully",
+  QUALIFICATION_INSERT_FAILED: "Failed to insert qualification",
+
 
 } as const;
 

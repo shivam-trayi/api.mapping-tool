@@ -64,7 +64,7 @@ questionRouter.get("/getAnswersByQID", getAllOptions);
 
 // Update options by question ID
 questionRouter.put("/updateAnswersByQID", updateOptionsValue);
-questionRouter.put("/getOptionQueryReviewMapping", getOptionQueryReviewMappingController);
+questionRouter.get("/getOptionQueryReviewMapping", getOptionQueryReviewMappingController);
 
 
 

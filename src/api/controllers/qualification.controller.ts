@@ -43,21 +43,31 @@ export const insertQualificationReviewData = async (req: Request, res: Response)
     let bodyData = req.body;
     const result =
       await qualificationService.createDemographicsMappingReview(bodyData);
-    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_SUCCESS);
   } catch (err: any) {
-    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_FAILED
     );
   }
 };
 
 
-// export const updateQualificationConstantIdController = async (req: Request, res: Response) => {
-//   try {
-//     const bodyData = req.body;
-//     const result = await qualificationService.updateQualificationConstantIdService(bodyData);
+export const updateQualificationConstantIdController = async (req: Request, res: Response) => {
+  try {
+    const { bodyData } = req.body;
+    if (!bodyData || !Array.isArray(bodyData)) {
+      return res.sendError("Invalid payload");
+    }
 
-//     return res.sendSuccess(result, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
-//   } catch (error: any) {
-//     return res.sendError(error, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
-//   }
-// };
+    // Map to the shape service expects
+    const payload = bodyData.map((item: any) => ({
+      id: item.id,
+      member_qualification_id: Number(item.constantId) || null,
+    }));
+
+    const result = await qualificationService.updateQualificationConstantIdService(payload);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
+  } catch (error: any) {
+    return res.sendError(error, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
+  }
+};
+

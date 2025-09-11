@@ -82,16 +82,30 @@ export interface QualificationConstantUpdatePayload {
 }
 
 // Response structure
-export interface QualificationConstantUpdateResult {
-  qualificationId: number;
-  success: boolean;
-  rowsAffected?: number;
-  error?: string;
+// export interface QualificationConstantUpdateResult {
+//   qualificationId: number;
+//   success: boolean;
+//   rowsAffected?: number;
+//   error?: string;
+// }
+
+// export interface QualificationConstantUpdateResponse {
+//   success: boolean;
+//   message: string;
+//   affectedRows: number;
+//   results: QualificationConstantUpdateResult[];
+// }
+
+
+export interface UpdateQualificationConstantPayload {
+  id: number; // primary key from the table
+  member_qualification_id: number | null;
 }
 
-export interface QualificationConstantUpdateResponse {
-  success: boolean;
-  message: string;
-  affectedRows: number;
-  results: QualificationConstantUpdateResult[];
-}
+// export interface UpdateQualificationConstantResponse {
+//   status: number;
+//   success: boolean;
+//   message: string;
+//   affectedRows?: number;
+//   results?: any[];
+// }

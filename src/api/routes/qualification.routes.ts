@@ -7,6 +7,6 @@ qualificationRouter.get("/", qualificationController.getQualifications);
 qualificationRouter.post("/saveQualMapping", qualificationController.insertQualificationMapping);
 qualificationRouter.get("/getQualificationDemographicsMappingReview", qualificationController.getQualificationDemographicsMappingReview);
 qualificationRouter.post("/saveQualificationReviewData", qualificationController.insertQualificationReviewData);
-// qualificationRouter.put("/updateQualificationConstantId", qualificationController.updateQualificationConstantIdController);
+qualificationRouter.put("/updateQualificationConstantId", qualificationController.updateQualificationConstantIdController);
 
 export default qualificationRouter;

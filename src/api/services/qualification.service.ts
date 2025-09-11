@@ -1,5 +1,5 @@
 import * as qualificationDao from "../dao/qualification.dao";
-import { CreateMappingResponse, QualificationConstantUpdatePayload, QualificationConstantUpdateResponse, QualificationsMappingData } from "../interfaces/qualification";
+import { CreateMappingResponse, QualificationsMappingData, UpdateQualificationConstantPayload, } from "../interfaces/qualification";
 
 // Get paginated qualifications
 export const getQualifications = async (page = 1, limit = 10, search = "") => {
@@ -101,20 +101,12 @@ export const createDemographicsMappingReview = async (
 };
 
 
-// interface UpdateQualificationConstantPayload {
-//   memberId: number;
-//   memberType: string;
-//   optionData: {
-//     qualificationId: number;
-//     memberQualificationId: number | null;
-//   }[];
-// }
-// export const updateQualificationConstantIdService = async (
-//   bodyData: QualificationConstantUpdatePayload
-// ): Promise<QualificationConstantUpdateResponse> => {
-//   if (!bodyData.bodyData || bodyData.bodyData.length === 0) {
-//     throw new Error("No qualifications provided");
-//   }
+export const updateQualificationConstantIdService = async (
+  payload: UpdateQualificationConstantPayload[]
+) => {
+  if (!payload || payload.length === 0) {
+    throw new Error("No qualifications provided");
+  }
 
-//   return await qualificationDao.updateQualificationConstantIdDao(bodyData);
-// };
+  return await qualificationDao.updateQualificationConstantIdDao(payload); // just raw results
+};

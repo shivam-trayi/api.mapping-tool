@@ -1,5 +1,5 @@
 import { pool } from '../../config/database/connection';
-import { QualificationConstantUpdatePayload, QualificationConstantUpdateResponse, QualificationsMappingData } from '../interfaces/qualification';
+import { QualificationsMappingData, UpdateQualificationConstantPayload } from '../interfaces/qualification';
 
 // Get paginated qualifications with search
 export const getAllQualifications = async (
@@ -78,7 +78,7 @@ export const createQualificationsMappingDao = async (
         qualification_id,
         member_id,
         member_type,
-        constantId, 
+        constantId,
         created_by = null,
         updated_by = null,
       } = data;
@@ -147,44 +147,106 @@ export const createQualificationsMappingDao = async (
 
 
 // Get mapping review for a member from qualifications_mapping table
-export const getQualificationDemographicsMappingReviewDao = async (queryData: {
-  memberId: number;
-}) => {
+// export const getQualificationDemographicsMappingReviewDao = async (queryData: {
+//   memberId: number;
+// }) => {
+//   try {
+//     const { memberId } = queryData;
+
+//     if (!memberId) {
+//       return [];
+//     }
+
+//     const query = `
+//       SELECT 
+//         qm.id AS mappingId,
+//         qm.qualification_id,
+//         q.name AS qualificationName,
+//         qm.member_id,
+//         qm.member_type,
+//         qm.member_qualification_id,
+//         qm.old_member_qualification_id, -- add this
+//         qm.created_at,
+//         qm.is_active
+//       FROM dbo.qualifications_mapping qm
+//       LEFT JOIN dbo.qualifications q
+//         ON q.id = qm.qualification_id
+//       WHERE qm.member_id = @memberId
+//       ORDER BY qm.created_at DESC;
+//     `;
+
+//     const request = pool.request();
+//     request.input('memberId', memberId);
+
+//     const result = await request.query(query);
+//     return result.recordset;
+//   } catch (error) {
+//     console.error('Error in getQualificationDemographicsMappingReviewDao:', error);
+//     throw error;
+//   }
+// };
+export const getQualificationDemographicsMappingReviewDao = async (queryData: { memberId: number }) => {
   try {
     const { memberId } = queryData;
-
-    if (!memberId) {
-      return [];
-    }
-
-    const query = `
-      SELECT 
-        qm.id AS mappingId,
-        qm.qualification_id,
-        q.name AS qualificationName,
-        qm.member_id,
-        qm.member_type,
-        qm.member_qualification_id,
-        qm.old_member_qualification_id, -- add this
-        qm.created_at,
-        qm.is_active
-      FROM dbo.qualifications_mapping qm
-      LEFT JOIN dbo.qualifications q
-        ON q.id = qm.qualification_id
-      WHERE qm.member_id = @memberId
-      ORDER BY qm.created_at DESC;
-    `;
-
     const request = pool.request();
-    request.input('memberId', memberId);
 
-    const result = await request.query(query);
-    return result.recordset;
+    if (Number(memberId) === 0) {
+      // Return all qualifications without member mapping
+      const query = `
+        SELECT 
+          q.id AS qualification_id,
+          q.name AS qualificationName,
+          q.is_active,
+          q.created_at,
+          q.updated_at,
+          NULL AS mappingId,
+          0 AS member_id,
+          NULL AS member_type,
+          NULL AS member_qualification_id,
+          NULL AS old_member_qualification_id,
+          NULL AS mapping_created_at,
+          NULL AS mapping_is_active
+        FROM dbo.qualifications q
+        ORDER BY q.created_at DESC;
+      `;
+      const result = await request.query(query);
+      return result.recordset;
+    } else {
+      // Return all qualifications with member mapping (if exists)
+      const query = `
+        SELECT 
+          q.id AS qualification_id,
+          q.name AS qualificationName,
+          q.is_active AS qualificationIsActive,
+          q.created_at AS qualificationCreatedAt,
+          q.updated_at AS qualificationUpdatedAt,
+
+          qm.id AS mappingId,
+          qm.member_id,
+          qm.member_type,
+          qm.qualification_id AS mappingQualificationId,
+          qm.member_qualification_id,
+          qm.old_member_qualification_id,
+          qm.created_at AS mappingCreatedAt,
+          qm.is_active AS mappingIsActive
+
+        FROM dbo.qualifications q
+        LEFT JOIN dbo.qualifications_mapping qm
+          ON q.id = qm.qualification_id AND qm.member_id = @memberId
+        ORDER BY 
+          CASE WHEN qm.id IS NOT NULL THEN 0 ELSE 1 END,
+          q.created_at DESC;
+      `;
+      request.input('memberId', memberId);
+      const result = await request.query(query);
+      return result.recordset;
+    }
   } catch (error) {
     console.error('Error in getQualificationDemographicsMappingReviewDao:', error);
     throw error;
   }
 };
+
 
 
 export const saveDemographicsMappingReviewInDB = async (
@@ -236,65 +298,51 @@ export const saveDemographicsMappingReviewInDB = async (
 };
 
 
-// export const updateQualificationConstantIdDao = async (
-//   bodyData: QualificationConstantUpdatePayload
-// ): Promise<QualificationConstantUpdateResponse> => {
-//   const { bodyData: optionData } = bodyData;
+export const updateQualificationConstantIdDao = async (
+  payload: UpdateQualificationConstantPayload[]
+) => {
+  const results: any[] = [];
 
-//   const results: any[] = [];
+  for (const item of payload) {
+    const { id, member_qualification_id } = item;
 
-//   for (const item of optionData) {
-//     const qualificationId = Number(item.qualificationId);
-//     const constantId = item.constantId ? String(item.constantId) : null;
-//     const memberId = Number(item.memberId);
+    if (!id) {
+      results.push({ id, success: false, error: "Invalid data" });
+      continue;
+    }
 
-//     if (!qualificationId || !memberId) {
-//       results.push({ qualificationId, success: false, error: "Invalid data" });
-//       continue;
-//     }
+    try {
+      const request = pool.request();
+      request.input("id", id);
+      request.input("member_qualification_id", member_qualification_id);
 
-//     try {
-//       const request = pool.request();
-//       request.input("qualificationId", qualificationId);
-//       request.input("constantId", constantId);
-//       request.input("memberId", memberId);
+      const query = `
+        UPDATE [staging_gswebsurveys].[dbo].[qualifications_mapping]
+        SET member_qualification_id = @member_qualification_id,
+            updated_at = GETDATE()
+        WHERE id = @id;
+      `;
 
-//       const query = `
-//         UPDATE [staging_gswebsurveys].[dbo].[qualification_mapping]
-//         SET constant_id = @constantId,
-//             updated_at = GETDATE()
-//         WHERE qualification_id = @qualificationId
-//           AND member_id = @memberId;
+      const result = await request.query(query);
 
-//         IF @@ROWCOUNT = 0
-//         BEGIN
-//           INSERT INTO [staging_gswebsurveys].[dbo].[qualification_mapping]
-//             (qualification_id, member_id, constant_id, created_at)
-//           VALUES
-//             (@qualificationId, @memberId, @constantId, GETDATE());
-//         END
-//       `;
+      results.push({
+        id,
+        success: true,
+        rowsAffected: result.rowsAffected[0] ?? 0
+      });
+    } catch (error: any) {
+      results.push({
+        id,
+        success: false,
+        error: error.message
+      });
+    }
+  }
 
-//       const result = await request.query(query);
-
-//       results.push({
-//         qualificationId,
-//         success: true,
-//         rowsAffected: result.rowsAffected[0] ?? 0
-//       });
-//     } catch (error: any) {
-//       results.push({
-//         qualificationId,
-//         success: false,
-//         error: error.message
-//       });
-//     }
-//   }
-
-//   return {
-//     success: true,
-//     message: "Qualification constant IDs updated successfully.",
-//     affectedRows: results.length,
-//     results
-//   };
-// };
+  return {
+    success: true,
+    message: "Member qualification IDs updated successfully.",
+    affectedRows: results.length,
+    results
+  };
+};
