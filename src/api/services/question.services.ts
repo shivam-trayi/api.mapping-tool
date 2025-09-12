@@ -191,28 +191,70 @@ export const insertAnswerMappingService = async (bodyData: any) => {
 
 
 
+// export interface UpdateAnswerMappingPayload {
+//   memberId: number | string;
+//   memberType: string;
+//   optionData: {
+//     questionId: number;
+//     qualificationId: number;
+//     memberAnswerId : string; // value to update
+//   }[];
+// }
+
+// export const updateAnswerMappingService = async (payload: UpdateAnswerMappingPayload) => {
+//   // Loop through all optionData items and update individually
+//   const updateResults = [];
+//   for (const option of payload.optionData) {
+//     const result = await updateAnswerMappingDao({
+//       memberId: payload.memberId,
+//       memberType: payload.memberType,
+//       questionId: option.questionId,
+//       qualificationId: option.qualificationId,
+//       member_answer_id: option.memberAnswerId,
+//     });
+//     updateResults.push(result);
+//   }
+//   return updateResults;
+// };
+
+
+
+
 export interface UpdateAnswerMappingPayload {
   memberId: number | string;
   memberType: string;
   optionData: {
     questionId: number;
     qualificationId: number;
-    member_answer_id: string; // value to update
+    memberAnswerId: string; // value to update
+    answerId?: number;      // optional if different from questionId
   }[];
 }
 
 export const updateAnswerMappingService = async (payload: UpdateAnswerMappingPayload) => {
-  // Loop through all optionData items and update individually
-  const updateResults = [];
-  for (const option of payload.optionData) {
-    const result = await updateAnswerMappingDao({
-      memberId: payload.memberId,
-      memberType: payload.memberType,
-      questionId: option.questionId,
-      qualificationId: option.qualificationId,
-      member_answer_id: option.member_answer_id,
-    });
-    updateResults.push(result);
+  if (!payload.optionData || !payload.optionData.length) {
+    return { success: false, message: "No option data provided", rowsAffected: 0 };
   }
-  return updateResults;
+
+  // Use Promise.all for multiple updates (runs in parallel)
+  const updateResults = await Promise.all(
+    payload.optionData.map((option) =>
+      updateAnswerMappingDao({
+        memberId: payload.memberId,
+        memberType: payload.memberType,
+        questionId: option.questionId,
+        qualificationId: option.qualificationId,
+        memberAnswerId: option.memberAnswerId,
+        answerId: option.answerId, // optional
+      })
+    )
+  );
+
+  const totalRowsAffected = updateResults.reduce((acc, res) => acc + (res.rowsAffected || 0), 0);
+
+  return {
+    success: true,
+    rowsAffected: totalRowsAffected,
+    results: updateResults,
+  };
 };
