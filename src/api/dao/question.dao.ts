@@ -147,23 +147,25 @@ IF EXISTS (
       AND member_type = @memberType
 )
 BEGIN
+    -- Row exist karta hai, update karo
     UPDATE dbo.questions_mapping
     SET 
         old_member_question_id = member_question_id,
         member_question_id = @memberQuestionId,
-        updated_at = GETDATE()
+        updated_at = GETDATE(),
+        isApproved = 0
     WHERE question_id = @questionId
       AND member_id = @memberId
-      AND member_type = @memberType
-      AND isApproved = 0;
+      AND member_type = @memberType;
 END
 ELSE
 BEGIN
+    -- Row exist nahi karta, insert karo
     INSERT INTO dbo.questions_mapping
-      (question_id, qualification_id, member_id, member_type, member_question_id, old_member_question_id, created_at, isApproved)
-    VALUES 
-      (@questionId, @qualificationId, @memberId, @memberType, @memberQuestionId, NULL, GETDATE(), @isApproved);
+    (question_id, qualification_id, member_id, member_type, member_question_id, old_member_question_id, created_at, isApproved)
+    VALUES (@questionId, @qualificationId, @memberId, @memberType, @memberQuestionId, NULL, GETDATE(), @isApproved);
 END
+
       `;
 
       const result = await request.query(query);
@@ -178,6 +180,69 @@ END
 };
 
 
+// export const createQuestionsMappingReviewDao = async (bodyData: {
+//   memberId: number;
+//   memberType: string;
+//   optionData: any[];
+// }) => {
+//   try {
+//     const { memberId, optionData } = bodyData;
+
+//     if (!optionData || optionData.length === 0) {
+//       return { success: false, message: "Invalid or empty optionData" };
+//     }
+
+//     const inserted: any[] = [];
+
+//     for (const item of optionData) {
+//       if (!item.questionId || !item.qualificationId) {
+//         console.warn("Skipping invalid item:", item);
+//         continue;
+//       }
+
+//       const request = pool.request();
+//       request.input("memberId", memberId);
+//       request.input("questionId", item.questionId);
+//       request.input("qualificationId", item.qualificationId);
+//       request.input("memberQuestionId", item.memberQuestionId ?? null);
+//       request.input("createdBy", null);
+
+//       const query = `
+//         INSERT INTO dbo.review_questions_mapping
+//           (question_id, qualification_id, member_id, member_question_id, created_at, created_by)
+//         VALUES
+//           (@questionId, @qualificationId, @memberId, @memberQuestionId, GETDATE(), @createdBy);
+//       `;
+
+//       const result = await request.query(query);
+
+//       if (result) {
+//         const updateQuery = `
+//           UPDATE dbo.questions_mapping
+//           SET isApproved = 1
+//           WHERE question_id = @questionId
+//             AND qualification_id = @qualificationId
+//             AND member_id = @memberId
+//             AND member_question_id = @memberQuestionId
+//         `;
+
+//         await request.query(updateQuery);
+//       }
+//       inserted.push(result);
+//     }
+
+//     return {
+//       success: true,
+//       message: "Review questions mapping inserted successfully.",
+//       affectedRows: inserted.length,
+//     };
+//   } catch (error) {
+//     console.error("Error in createQuestionsMappingReviewDao:", error);
+//     throw error;
+//   }
+// };
+
+
 export const createQuestionsMappingReviewDao = async (bodyData: {
   memberId: number;
   memberType: string;
@@ -190,7 +255,7 @@ export const createQuestionsMappingReviewDao = async (bodyData: {
       return { success: false, message: "Invalid or empty optionData" };
     }
 
-    const inserted: any[] = [];
+    const insertedOrUpdated: any[] = [];
 
     for (const item of optionData) {
       if (!item.questionId || !item.qualificationId) {
@@ -205,41 +270,61 @@ export const createQuestionsMappingReviewDao = async (bodyData: {
       request.input("memberQuestionId", item.memberQuestionId ?? null);
       request.input("createdBy", null);
 
-      const query = `
-        INSERT INTO dbo.review_questions_mapping
-          (question_id, qualification_id, member_id, member_question_id, created_at, created_by)
-        VALUES
-          (@questionId, @qualificationId, @memberId, @memberQuestionId, GETDATE(), @createdBy);
+      // --- Check if row exists in review_questions_mapping ---
+      const existsQuery = `
+        SELECT COUNT(*) as count
+        FROM dbo.review_questions_mapping
+        WHERE question_id = @questionId
+          AND qualification_id = @qualificationId
+          AND member_id = @memberId
       `;
+      const existsResult = await request.query(existsQuery);
 
-      const result = await request.query(query);
-
-      if (result) {
+      if (existsResult.recordset[0].count > 0) {
+        // Row exists → update member_question_id
         const updateQuery = `
-          UPDATE dbo.questions_mapping
-          SET isApproved = 1
+          UPDATE dbo.review_questions_mapping
+          SET member_question_id = @memberQuestionId, created_at = GETDATE()
           WHERE question_id = @questionId
             AND qualification_id = @qualificationId
             AND member_id = @memberId
-            AND member_question_id = @memberQuestionId
         `;
-
         await request.query(updateQuery);
+      } else {
+        // Row does not exist → insert (original query unchanged)
+        const query = `
+          INSERT INTO dbo.review_questions_mapping
+            (question_id, qualification_id, member_id, member_question_id, created_at, created_by)
+          VALUES
+            (@questionId, @qualificationId, @memberId, @memberQuestionId, GETDATE(), @createdBy);
+        `;
+        await request.query(query);
       }
-      inserted.push(result);
+
+      // --- Also update questions_mapping if needed ---
+      const updateQuestionsMappingQuery = `
+        UPDATE dbo.questions_mapping
+        SET isApproved = 1
+        WHERE question_id = @questionId
+          AND qualification_id = @qualificationId
+          AND member_id = @memberId
+          AND member_question_id = @memberQuestionId
+      `;
+      await request.query(updateQuestionsMappingQuery);
+
+      insertedOrUpdated.push({ questionId: item.questionId, qualificationId: item.qualificationId });
     }
 
     return {
       success: true,
-      message: "Review questions mapping inserted successfully.",
-      affectedRows: inserted.length,
+      message: "Review questions mapping inserted/updated successfully.",
+      affectedRows: insertedOrUpdated.length,
     };
   } catch (error) {
     console.error("Error in createQuestionsMappingReviewDao:", error);
     throw error;
   }
 };
-
 
 
 export const getAllAnswrsListById = async (queryData: {
@@ -627,6 +712,97 @@ export const updateQuestionsConstantMappingReviewDao = async (
 
 
 
+// export const insertAnswerMappingDao = async (bodyData: any) => {
+//   try {
+//     const { memberId, memberType, optionData } = bodyData;
+
+//     if (!memberId) {
+//       return { success: false, message: "memberId is required" };
+//     }
+
+//     if (!optionData || optionData.length === 0) {
+//       return { success: false, message: "No option data provided." };
+//     }
+
+//     let insertedCount = 0;
+
+//     for (const item of optionData) {
+//       const request = pool.request();
+
+//       request.input("answerId", item.answerId);
+//       request.input("questionId", item.questionId);
+//       request.input("qualificationId", item.qualificationId);
+//       request.input("memberId", memberId);
+//       request.input("memberType", memberType);
+//       request.input("memberAnswerId", item.memberAnswerId ?? item.member_answer_id ?? null);
+//       request.input("qualificationMappingId", item.qualificationMappingId ?? null);
+//       request.input("questionMappingId", null);
+//       request.input("createdBy", 1);
+//       request.input("updatedBy", 1);
+
+//       // ✅ Insert first
+//       const insertResult = await request.query(`
+//         INSERT INTO [staging_gswebsurveys].[dbo].[review_answers_mapping]
+//           (
+//             answer_id,
+//             question_id,
+//             qualification_id,
+//             member_id,
+//             member_type,
+//             member_answer_id,
+//             qualification_mapping_id,
+//             question_mapping_id,
+//             created_at,
+//             updated_at,
+//             created_by,
+//             updated_by
+//           )
+//         VALUES
+//           (
+//             @answerId,
+//             @questionId,
+//             @qualificationId,
+//             @memberId,
+//             @memberType,
+//             @memberAnswerId,
+//             @qualificationMappingId,
+//             @questionMappingId,
+//             GETDATE(),
+//             GETDATE(),
+//             @createdBy,
+//             @updatedBy
+//           )
+//       `);
+//       // ✅ Update tabhi chale jab insert hua ho
+//       if (insertResult.rowsAffected && insertResult.rowsAffected[0] > 0) {
+//         insertedCount++;
+
+//         const updateResult = await request.query(`
+//           UPDATE [staging_gswebsurveys].[dbo].[answers_mapping]
+//           SET isApproved = 1,
+//               updated_at = GETDATE()
+//           WHERE answer_id = @answerId
+//             AND question_id = @questionId
+//             AND qualification_id = @qualificationId
+//             AND member_id = @memberId
+//             AND member_type = @memberType
+//         `);
+//       }
+//     }
+
+//     if (insertedCount === 0) {
+//       return { success: false, message: "Failed to insert option review mapping" };
+//     }
+
+//     return { success: true, message: "Option review mapping inserted successfully" };
+//   } catch (error) {
+//     console.error("insertAnswerMappingDao Error:", error);
+//     return { success: false, message: "Failed to insert option review mapping" };
+//   }
+// };
+
+
+
 export const insertAnswerMappingDao = async (bodyData: any) => {
   try {
     const { memberId, memberType, optionData } = bodyData;
@@ -655,66 +831,94 @@ export const insertAnswerMappingDao = async (bodyData: any) => {
       request.input("createdBy", 1);
       request.input("updatedBy", 1);
 
-      // ✅ Insert first
-      const insertResult = await request.query(`
-        INSERT INTO [staging_gswebsurveys].[dbo].[review_answers_mapping]
-          (
-            answer_id,
-            question_id,
-            qualification_id,
-            member_id,
-            member_type,
-            member_answer_id,
-            qualification_mapping_id,
-            question_mapping_id,
-            created_at,
-            updated_at,
-            created_by,
-            updated_by
-          )
-        VALUES
-          (
-            @answerId,
-            @questionId,
-            @qualificationId,
-            @memberId,
-            @memberType,
-            @memberAnswerId,
-            @qualificationMappingId,
-            @questionMappingId,
-            GETDATE(),
-            GETDATE(),
-            @createdBy,
-            @updatedBy
-          )
-      `);
-      // ✅ Update tabhi chale jab insert hua ho
-      if (insertResult.rowsAffected && insertResult.rowsAffected[0] > 0) {
-        insertedCount++;
+      // ✅ Check if row exists first
+      const existsQuery = `
+        SELECT COUNT(*) AS count
+        FROM [staging_gswebsurveys].[dbo].[review_answers_mapping]
+        WHERE answer_id = @answerId
+          AND question_id = @questionId
+          AND qualification_id = @qualificationId
+          AND member_id = @memberId
+          AND member_type = @memberType
+      `;
+      const existsResult = await request.query(existsQuery);
 
-        const updateResult = await request.query(`
-          UPDATE [staging_gswebsurveys].[dbo].[answers_mapping]
-          SET isApproved = 1,
+      if (existsResult.recordset[0].count > 0) {
+        // Row exists → update member_answer_id
+        const updateQuery = `
+          UPDATE [staging_gswebsurveys].[dbo].[review_answers_mapping]
+          SET member_answer_id = @memberAnswerId,
               updated_at = GETDATE()
           WHERE answer_id = @answerId
             AND question_id = @questionId
             AND qualification_id = @qualificationId
             AND member_id = @memberId
             AND member_type = @memberType
-        `);
+        `;
+        await request.query(updateQuery);
+        insertedCount++;
+      } else {
+        // Row does not exist → insert as-is
+        const insertQuery = `
+          INSERT INTO [staging_gswebsurveys].[dbo].[review_answers_mapping]
+            (
+              answer_id,
+              question_id,
+              qualification_id,
+              member_id,
+              member_type,
+              member_answer_id,
+              qualification_mapping_id,
+              question_mapping_id,
+              created_at,
+              updated_at,
+              created_by,
+              updated_by
+            )
+          VALUES
+            (
+              @answerId,
+              @questionId,
+              @qualificationId,
+              @memberId,
+              @memberType,
+              @memberAnswerId,
+              @qualificationMappingId,
+              @questionMappingId,
+              GETDATE(),
+              GETDATE(),
+              @createdBy,
+              @updatedBy
+            )
+        `;
+        await request.query(insertQuery);
+        insertedCount++;
       }
+
+      // ✅ Update answers_mapping exactly as-is
+      const updateResult = await request.query(`
+        UPDATE [staging_gswebsurveys].[dbo].[answers_mapping]
+        SET isApproved = 1,
+            updated_at = GETDATE()
+        WHERE answer_id = @answerId
+          AND question_id = @questionId
+          AND qualification_id = @qualificationId
+          AND member_id = @memberId
+          AND member_type = @memberType
+      `);
     }
 
     if (insertedCount === 0) {
-      return { success: false, message: "Failed to insert option review mapping" };
+      return { success: false, message: "Failed to insert/update option review mapping" };
     }
 
-    return { success: true, message: "Option review mapping inserted successfully" };
+    return { success: true, message: "Option review mapping inserted/updated successfully" };
   } catch (error) {
     console.error("insertAnswerMappingDao Error:", error);
-    return { success: false, message: "Failed to insert option review mapping" };
+    return { success: false, message: "Failed to insert/update option review mapping" };
   }
 };
+
 
 export interface UpdateAnswerMappingDaoPayload {
   memberId: number | string;
@@ -739,7 +943,7 @@ export const updateAnswerMappingDao = async (
   request.input("memberType", memberType);
   request.input("questionId", questionId);
   request.input("qualificationId", qualificationId);
-  request.input("answerId", answerId ?? questionId); 
+  request.input("answerId", answerId ?? questionId);
   request.input("memberAnswerId", memberAnswerId);
 
   const query = `
