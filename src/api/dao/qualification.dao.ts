@@ -34,7 +34,7 @@ export const getQualificationsCount = async (search = '') => {
   return result.recordset[0].total;
 };
 
-// Get questions by qualification IDs
+
 export const getQuestionsByQualificationIds = async (
   qualificationIds: number[]
 ) => {
@@ -51,7 +51,7 @@ export const getQuestionsByQualificationIds = async (
   return result.recordset;
 };
 
-// Get answers by question IDs
+
 export const getAnswersByQuestionIds = async (questionIds: number[]) => {
   if (!questionIds.length) return [];
   const ids = questionIds.join(',');
@@ -68,7 +68,7 @@ export const getAnswersByQuestionIds = async (questionIds: number[]) => {
   return result.recordset;
 };
 
-// Insert into qualifications_mapping table
+
 export const createQualificationsMappingDao = async (
   bodyData: QualificationsMappingData[]
 ) => {
@@ -83,7 +83,6 @@ export const createQualificationsMappingDao = async (
         updated_by = null,
       } = data;
 
-      // Step 1: Pehle check karo ki koi purana mapping already exist karta hai ya nahi
       const existingQuery = `
         SELECT TOP 1 member_qualification_id 
         FROM dbo.qualifications_mapping
@@ -191,7 +190,6 @@ export const getQualificationDemographicsMappingReviewDao = async (queryData: { 
     const request = pool.request();
 
     if (Number(memberId) === 0) {
-      // Return all qualifications without member mapping
       const query = `
         SELECT 
           q.id AS qualification_id,
@@ -212,7 +210,6 @@ export const getQualificationDemographicsMappingReviewDao = async (queryData: { 
       const result = await request.query(query);
       return result.recordset;
     } else {
-      // Return all qualifications with member mapping (if exists)
       const query = `
         SELECT 
           q.id AS qualification_id,

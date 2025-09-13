@@ -45,12 +45,6 @@ export const getMappingQuestionsDao = async (queryData: {
 
     const result = await request.query(query);
 
-    console.log('DAO Debug => Rows:', result.recordset.length, ' Params:', {
-      memberType,
-      memberId,
-      langCode,
-    });
-
     return result.recordset;
   } catch (error) {
     console.error('Error in getMappingQuestionsDao:', error);
@@ -103,14 +97,6 @@ and qmm.isApproved = 0
     request.input('langCode', langCode);
 
     const result = await request.query(query);
-
-    console.log(
-      'DAO Debug (Review) => Rows:',
-      result.recordset.length,
-      ' Params:',
-      { memberType, memberId, langCode }
-    );
-
     return result.recordset;
   } catch (error) {
     console.error('Error in getQuestionsMappingReviewDao:', error);
@@ -153,25 +139,31 @@ export const updateQuestionsMappingReviewDao = async ({
       request.input("isApproved", 0);
 
       const query = `
-UPDATE dbo.questions_mapping
-SET 
-    old_member_question_id = member_question_id,
-    member_question_id = @memberQuestionId,
-    updated_at = GETDATE()
-WHERE question_id = @questionId
-  AND member_id = @memberId
-  AND member_type = @memberType
-  AND isApproved = 0;
-
-IF @@ROWCOUNT = 0
+IF EXISTS (
+    SELECT 1 
+    FROM dbo.questions_mapping
+    WHERE question_id = @questionId
+      AND member_id = @memberId
+      AND member_type = @memberType
+)
 BEGIN
-  INSERT INTO dbo.questions_mapping
-  (question_id, qualification_id, member_id, member_type, member_question_id, old_member_question_id, created_at, isApproved)
-  VALUES (@questionId, @qualificationId, @memberId, @memberType, @memberQuestionId, NULL, GETDATE(), @isApproved);
+    UPDATE dbo.questions_mapping
+    SET 
+        old_member_question_id = member_question_id,
+        member_question_id = @memberQuestionId,
+        updated_at = GETDATE()
+    WHERE question_id = @questionId
+      AND member_id = @memberId
+      AND member_type = @memberType
+      AND isApproved = 0;
 END
-
-
-
+ELSE
+BEGIN
+    INSERT INTO dbo.questions_mapping
+      (question_id, qualification_id, member_id, member_type, member_question_id, old_member_question_id, created_at, isApproved)
+    VALUES 
+      (@questionId, @qualificationId, @memberId, @memberType, @memberQuestionId, NULL, GETDATE(), @isApproved);
+END
       `;
 
       const result = await request.query(query);
@@ -300,13 +292,6 @@ export const getAllAnswrsListById = async (queryData: {
     request.input("langCode", langCode);
 
     const result = await request.query(query);
-
-    console.log("DAO Debug (Answers by Question) =>", result.recordset.length, "rows", {
-      memberType,
-      memberId,
-      questionId,
-      langCode,
-    });
 
     return result.recordset;
   } catch (error) {
@@ -489,12 +474,6 @@ WHERE am.member_id = @memberId
     request.input("questionId", questionId);
 
     const result = await request.query(query);
-
-    console.log("DAO Debug (Option Query Review Mapping) =>", result.recordset.length, "rows", {
-      memberId,
-      questionId,
-    });
-
     return result.recordset;
   } catch (error) {
     console.error("Error in getOptionQueryReviewMappingDao:", error);
@@ -709,9 +688,6 @@ export const insertAnswerMappingDao = async (bodyData: any) => {
             @updatedBy
           )
       `);
-
-      console.log("Insert rowsAffected:", insertResult.rowsAffected);
-
       // ✅ Update tabhi chale jab insert hua ho
       if (insertResult.rowsAffected && insertResult.rowsAffected[0] > 0) {
         insertedCount++;
@@ -726,7 +702,6 @@ export const insertAnswerMappingDao = async (bodyData: any) => {
             AND member_id = @memberId
             AND member_type = @memberType
         `);
-        console.log("Update isApproved result:", updateResult.rowsAffected);
       }
     }
 
@@ -741,71 +716,13 @@ export const insertAnswerMappingDao = async (bodyData: any) => {
   }
 };
 
-
-
-// DAO Payload interface for single update
-// export interface UpdateAnswerMappingDaoPayload {
-//   memberId: number | string;
-//   memberType: string;
-//   questionId: number;
-//   qualificationId: number;
-//   member_answer_id: string; // value to update
-// }
-
-// // DAO function for a single item
-// export const updateAnswerMappingDao = async (
-//   bodyData: UpdateAnswerMappingDaoPayload
-// ) => {
-//   const { memberId, memberType, questionId, qualificationId, member_answer_id } = bodyData;
-
-//   if (!memberId || !memberType || !questionId || !qualificationId || !member_answer_id) {
-//     return { success: false, message: "Missing required fields", rowsAffected: 0 };
-//   }
-
-//   const request = pool.request();
-//   request.input("memberId", memberId);
-//   request.input("memberType", memberType);
-//   request.input("questionId", questionId);
-//   request.input("qualificationId", qualificationId);
-
-//   // Assuming answer_id = questionId here, otherwise pass it explicitly if needed
-//   request.input("answerId", questionId); 
-//   request.input("memberAnswerId", member_answer_id);
-
-//   const query = `
-//     UPDATE [staging_gswebsurveys].[dbo].[answers_mapping]
-//     SET 
-//         old_member_answer_id = member_answer_id,
-//         member_answer_id = @memberAnswerId,
-//         updated_at = GETDATE()
-//     WHERE member_id = @memberId
-//       AND member_type = @memberType
-//       AND question_id = @questionId
-//       AND qualification_id = @qualificationId
-//       AND answer_id = @answerId;
-//   `;
-
-//   try {
-//     const result = await request.query(query);
-//     return {
-//       success: true,
-//       rowsAffected: result.rowsAffected[0],
-//       questionId,
-//     };
-//   } catch (error: any) {
-//     console.error(`SQL error for questionId ${questionId}:`, error);
-//     return { success: false, error: error.message, questionId };
-//   }
-// };
-
-
 export interface UpdateAnswerMappingDaoPayload {
   memberId: number | string;
   memberType: string;
   questionId: number;
   qualificationId: number;
-  memberAnswerId: string; // value to update
-  answerId?: number; // optional, if different from questionId
+  memberAnswerId: string;
+  answerId?: number;
 }
 
 export const updateAnswerMappingDao = async (
@@ -822,7 +739,7 @@ export const updateAnswerMappingDao = async (
   request.input("memberType", memberType);
   request.input("questionId", questionId);
   request.input("qualificationId", qualificationId);
-  request.input("answerId", answerId ?? questionId); // default to questionId if answerId not provided
+  request.input("answerId", answerId ?? questionId); 
   request.input("memberAnswerId", memberAnswerId);
 
   const query = `

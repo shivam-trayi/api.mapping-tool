@@ -1,7 +1,6 @@
 import * as qualificationDao from "../dao/qualification.dao";
 import { CreateMappingResponse, QualificationsMappingData, UpdateQualificationConstantPayload, } from "../interfaces/qualification";
 
-// Get paginated qualifications
 export const getQualifications = async (page = 1, limit = 10, search = "") => {
   const offset = (page - 1) * limit;
 
@@ -57,14 +56,11 @@ export const getQualifications = async (page = 1, limit = 10, search = "") => {
   };
 };
 
-// Create mapping
 export const createDemographicsMapping = async (
   bodyData: QualificationsMappingData[]
 ): Promise<CreateMappingResponse> => {
   try {
     await qualificationDao.createQualificationsMappingDao(bodyData);
-
-    // If no error, assume rows inserted successfully
     return { status: 200, success: true };
   } catch (error) {
     return { status: 500, success: false };
@@ -93,7 +89,6 @@ export const createDemographicsMappingReview = async (
   try {
     await qualificationDao.saveDemographicsMappingReviewInDB(bodyData);
 
-    // If no error, assume rows inserted successfully
     return { status: 200, success: true };
   } catch (error) {
     return { status: 500, success: false };
@@ -108,5 +103,5 @@ export const updateQualificationConstantIdService = async (
     throw new Error("No qualifications provided");
   }
 
-  return await qualificationDao.updateQualificationConstantIdDao(payload); // just raw results
+  return await qualificationDao.updateQualificationConstantIdDao(payload);
 };

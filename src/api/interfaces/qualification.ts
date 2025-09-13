@@ -36,41 +36,6 @@ export interface UpdateConstantMappingReviewDaoPayload {
   }>;
 }
 
-
-
-// // =======================
-// // Request Payload Types
-// // =======================
-// export interface QualificationReviewUpdateItem {
-//   qualificationId: number;
-//   memberQualificationId: number | null;
-// }
-
-// export interface QualificationReviewUpdatePayload {
-//   memberId: number;
-//   memberType: string;
-//   optionData: QualificationReviewUpdateItem[];
-// }
-
-// // =======================
-// // Response Types
-// // =======================
-// export interface QualificationReviewUpdateResult {
-//   qualificationId: number;
-//   success: boolean;
-//   rowsAffected?: number;
-//   error?: string;
-// }
-
-// export interface QualificationReviewUpdateResponse {
-//   success: boolean;
-//   message: string;
-//   affectedRows: number;
-//   results: QualificationReviewUpdateResult[];
-// }
-
-
-// Request payload
 export interface QualificationConstantUpdateItem {
   qualificationId: number;
   constantId: string | number | null;
@@ -81,31 +46,7 @@ export interface QualificationConstantUpdatePayload {
   bodyData: QualificationConstantUpdateItem[];
 }
 
-// Response structure
-// export interface QualificationConstantUpdateResult {
-//   qualificationId: number;
-//   success: boolean;
-//   rowsAffected?: number;
-//   error?: string;
-// }
-
-// export interface QualificationConstantUpdateResponse {
-//   success: boolean;
-//   message: string;
-//   affectedRows: number;
-//   results: QualificationConstantUpdateResult[];
-// }
-
-
 export interface UpdateQualificationConstantPayload {
-  id: number; // primary key from the table
+  id: number; 
   member_qualification_id: number | null;
-}
-
-// export interface UpdateQualificationConstantResponse {
-//   status: number;
-//   success: boolean;
-//   message: string;
-//   affectedRows?: number;
-//   results?: any[];
-// }
+};

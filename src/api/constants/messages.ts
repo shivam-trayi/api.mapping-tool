@@ -16,11 +16,11 @@ export const ERROR_MESSAGES = {
 } as const;
 
 export const USER_MESSAGES = {
-  LOGIN_SUCCESS: "Login successful",
+  LOGIN_SUCCESS: "Login successfully",
   LOGIN_FAILED: "Login failed",
-  LOGOUT_SUCCESS: "Logout successful",
+  LOGOUT_SUCCESS: "Logout successfully",
   LOGOUT_FAILED: "Logout failed",
-  SIGNUP_SUCCESS: "Signup successful",
+  SIGNUP_SUCCESS: "Signup successfully",
   SIGNUP_FAILED: "Signup failed",
 } as const;
 
@@ -64,17 +64,6 @@ export const QUALIFICATION_MESSAGES = {
 
 } as const;
 
-// export const QUESTION_MESSAGES = {
-//   QUESTIONS_FETCH_SUCCESS: "Questions mapping fetched successfully",
-//   QUESTIONS_FETCH_FAILED: "Failed to fetch questions mapping",
-//   REVIEW_MAPPING_FETCH_SUCCESS: "Question review mapping fetched successfully",
-//   REVIEW_MAPPING_FETCH_FAILED: "Failed to fetch question review mapping",
-//   REVIEW_MAPPING_UPDATE_SUCCESS: "Review mapping updated successfully",
-//   REVIEW_MAPPING_UPDATE_FAILED: "Failed to update review mapping",
-//   QUALIFICATION_CREATED_SUCCESS: "Qualification mapping created successfully.",
-//   QUALIFICATION_CREATED_FAILED: "Failed to create qualification mapping.",
-// };
-
 export const QUESTION_MESSAGES = {
   // Questions messages
   QUESTIONS_FETCH_SUCCESS: "Questions mapping fetched successfully",
@@ -95,6 +84,10 @@ export const QUESTION_MESSAGES = {
   // Qualification messages
   QUALIFICATION_CREATED_SUCCESS: "Qualification mapping created successfully.",
   QUALIFICATION_CREATED_FAILED: "Failed to create qualification mapping.",
+  QUALIFICATION_MAPPING_UPDATE_SUCCESS: "Question mapping updated successfully",
+  QUALIFICATION_MAPPING_UPDATE_FAILED: "Failed to update Question mapping",
+
+
 };
 
 

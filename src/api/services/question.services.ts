@@ -188,46 +188,14 @@ export const insertAnswerMappingService = async (bodyData: any) => {
   }
 };
 
-
-
-
-// export interface UpdateAnswerMappingPayload {
-//   memberId: number | string;
-//   memberType: string;
-//   optionData: {
-//     questionId: number;
-//     qualificationId: number;
-//     memberAnswerId : string; // value to update
-//   }[];
-// }
-
-// export const updateAnswerMappingService = async (payload: UpdateAnswerMappingPayload) => {
-//   // Loop through all optionData items and update individually
-//   const updateResults = [];
-//   for (const option of payload.optionData) {
-//     const result = await updateAnswerMappingDao({
-//       memberId: payload.memberId,
-//       memberType: payload.memberType,
-//       questionId: option.questionId,
-//       qualificationId: option.qualificationId,
-//       member_answer_id: option.memberAnswerId,
-//     });
-//     updateResults.push(result);
-//   }
-//   return updateResults;
-// };
-
-
-
-
 export interface UpdateAnswerMappingPayload {
   memberId: number | string;
   memberType: string;
   optionData: {
     questionId: number;
     qualificationId: number;
-    memberAnswerId: string; // value to update
-    answerId?: number;      // optional if different from questionId
+    memberAnswerId: string; 
+    answerId?: number; 
   }[];
 }
 
@@ -236,7 +204,6 @@ export const updateAnswerMappingService = async (payload: UpdateAnswerMappingPay
     return { success: false, message: "No option data provided", rowsAffected: 0 };
   }
 
-  // Use Promise.all for multiple updates (runs in parallel)
   const updateResults = await Promise.all(
     payload.optionData.map((option) =>
       updateAnswerMappingDao({
@@ -245,7 +212,7 @@ export const updateAnswerMappingService = async (payload: UpdateAnswerMappingPay
         questionId: option.questionId,
         qualificationId: option.qualificationId,
         memberAnswerId: option.memberAnswerId,
-        answerId: option.answerId, // optional
+        answerId: option.answerId,
       })
     )
   );

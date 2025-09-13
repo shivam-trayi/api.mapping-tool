@@ -12,7 +12,6 @@ import {
   LoginPayload,
   LogoutPayload,
   SignupPayload,
-  ForgotPasswordPayload,
   ResetPasswordPayload,
 } from "../interfaces";
 import { resetPasswordEmailTemplate } from "../../email";
@@ -25,7 +24,6 @@ const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || "1h";
 export const loginUser = async ({ username, password }: LoginPayload) => {
   const user = await authDAO.findUserByEmail(username);
   if (!user) throw new NotFoundError("User not found");
-  // if (user.IsActive !== 1) throw new ForbiddenError("User is inactive");
 
   const decryptedPassword = decryptData(user.Password);
   if (password !== decryptedPassword) throw new UnauthorizedError("Invalid credentials");
@@ -38,9 +36,7 @@ export const loginUser = async ({ username, password }: LoginPayload) => {
 
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN as any });
 
-  await authDAO.updateUserLoginStatus(user.Id, 0); // mark logged in
-  // await authDAO.storeLoginToken(user.Id, token, new Date(Date.now() + 3600000)); // optional token store
-
+  await authDAO.updateUserLoginStatus(user.Id, 0); 
   return { token };
 };
 
@@ -55,7 +51,7 @@ export const signupUser = async ({ username, email, password }: SignupPayload) =
   if (byEmail) throw new BadRequestError("Email already exists");
 
   const encryptedPassword = encryptData(password);
-  const roleId = 2; // default roleId
+  const roleId = 2;
 
   const newUser = await authDAO.createUser({
     username,
@@ -141,7 +137,6 @@ export const logoutUser = async ({ username }: LogoutPayload) => {
   if (!user) throw new NotFoundError("User not found");
 
   const success = await authDAO.updateUserLoginStatus(user.Id, 1);
-  // await authDAO.revokeAllTokens(user.Id); // optional
 
   if (!success) throw new ForbiddenError("Failed to logout user");
   return { success: true };

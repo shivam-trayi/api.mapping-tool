@@ -48,12 +48,6 @@ questionRouter.get("/getAnswersByQID", getAllOptions);
 // Update options by question ID
 questionRouter.put("/updateAnswersByQID", updateOptionsValue);
 questionRouter.get("/getOptionQueryReviewMapping", getOptionQueryReviewMappingController);
-
-
-
-
-
-
 questionRouter.post("/createOptionQueryMapping", insertAnswerMappingReviewController);
 questionRouter.put("/updateOptionQueryMapping", updateAnswerMappingReviewController);
 

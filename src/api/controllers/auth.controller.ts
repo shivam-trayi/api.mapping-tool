@@ -24,10 +24,7 @@ export const login = async (req: Request, res: Response) => {
 // ---------- SIGNUP ----------
 export const signup = async (req: Request, res: Response) => {
   try {
-    // frontend sends { name, email, password, country? }
-    // service expects username; map name -> username
     const body = req.body as { name: string; email: string; password: string; country?: string };
-    console.log("Signup request body:", body); // Debug log
     const payload: SignupPayload = {
       username: body.name,
       email: body.email,

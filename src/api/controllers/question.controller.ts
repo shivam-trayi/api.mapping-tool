@@ -32,8 +32,12 @@ export const getMappingQuestionsController = async (req: Request, res: Response)
       langCode: Number(langCode),
     };
 
+    // const result = await getMappingQuestionsService(queryData);
     const result = await getMappingQuestionsService(queryData);
-    return res.sendSuccess(result, QUESTION_MESSAGES.QUESTIONS_FETCH_SUCCESS);
+    return res.sendSuccess(
+      { data: result.data, status: result.status, success: result.success },
+      QUESTION_MESSAGES.QUESTIONS_FETCH_SUCCESS
+    );
   } catch (err: any) {
     return res.sendError(err, QUESTION_MESSAGES.QUESTIONS_FETCH_FAILED);
   }
@@ -48,8 +52,13 @@ export const getQuestionsMappingReviewController = async (req: Request, res: Res
       langCode: Number(langCode),
     };
 
+    // const result = await getQuestionsMappingReviewService(queryData);
+    // return res.sendSuccess(result, QUESTION_MESSAGES.REVIEW_MAPPING_FETCH_SUCCESS);
     const result = await getQuestionsMappingReviewService(queryData);
-    return res.sendSuccess(result, QUESTION_MESSAGES.REVIEW_MAPPING_FETCH_SUCCESS);
+    return res.sendSuccess(
+      { data: result.data, status: result.status, success: result.success },
+      QUESTION_MESSAGES.REVIEW_MAPPING_FETCH_SUCCESS
+    );
   } catch (err: any) {
     return res.sendError(err, QUESTION_MESSAGES.REVIEW_MAPPING_FETCH_FAILED);
   }
@@ -59,9 +68,14 @@ export const updateQuestionsMappingReviewController = async (req: Request, res: 
   try {
     const bodyData = req.body;
     const result = await updateQuestionsMappingReviewService(bodyData);
-    return res.sendSuccess(result, QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
+    // return res.sendSuccess(result, QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
+
+    return res.sendSuccess(
+      { data: result.data, status: result.status, success: result.success },
+      QUESTION_MESSAGES.QUALIFICATION_MAPPING_UPDATE_SUCCESS
+    );
   } catch (error: any) {
-    return res.sendError(error, QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
+    return res.sendError(error, QUESTION_MESSAGES.QUALIFICATION_MAPPING_UPDATE_FAILED);
   }
 };
 
@@ -70,11 +84,19 @@ export const createQuestionsMappingReviewController = async (req: Request, res: 
     const { memberId, memberType, optionData } = req.body || {};
     const result = await createQuestionsMappingReviewService({ memberId, memberType, optionData });
 
+    // if (!result.success) {
+    //   return res.sendError({}, result.message || QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
+    // }
+
+    // return res.sendSuccess(result, QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
     if (!result.success) {
       return res.sendError({}, result.message || QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
     }
 
-    return res.sendSuccess(result, QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
+    return res.sendSuccess(
+      { data: result.data, status: result.status, success: result.success },
+      QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS
+    );
   } catch (error: any) {
     return res.sendError(error, QUESTION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
   }

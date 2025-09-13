@@ -10,9 +10,9 @@ export const getQualifications = async (req: Request, res: Response) => {
 
     const result = await qualificationService.getQualifications(page, limit, search);
 
-    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS, 200);
   } catch (err: any) {
-    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED);
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED, 500);
   }
 };
 
@@ -21,10 +21,9 @@ export const insertQualificationMapping = async (req: Request, res: Response) =>
     let bodyData = req.body;
     const result =
       await qualificationService.createDemographicsMapping(bodyData);
-    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_SUCCESS, 200);
   } catch (err: any) {
-    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED
-    );
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_FAILED, 500);
   }
 };
 
@@ -32,9 +31,9 @@ export const getQualificationDemographicsMappingReview = async (req: Request, re
   try {
     const queryData = req.query;
     const result = await qualificationService.getQualificationDemographicsMappingReviewService(queryData);
-    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_SUCCESS, 200);
   } catch (err: any) {
-    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED);
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATIONS_FETCH_FAILED, 500);
   }
 };
 
@@ -43,10 +42,9 @@ export const insertQualificationReviewData = async (req: Request, res: Response)
     let bodyData = req.body.bodyData;
     const result =
       await qualificationService.createDemographicsMappingReview(bodyData);
-    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_SUCCESS);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_SUCCESS, 200);
   } catch (err: any) {
-    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_FAILED
-    );
+    return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_FAILED, 500);
   }
 };
 
@@ -57,17 +55,15 @@ export const updateQualificationConstantIdController = async (req: Request, res:
     if (!bodyData || !Array.isArray(bodyData)) {
       return res.sendError("Invalid payload");
     }
-
-    // Map to the shape service expects
     const payload = bodyData.map((item: any) => ({
       id: item.id,
       member_qualification_id: Number(item.constantId) || null,
     }));
 
     const result = await qualificationService.updateQualificationConstantIdService(payload);
-    return res.sendSuccess(result, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS);
+    return res.sendSuccess(result, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_SUCCESS, 200);
   } catch (error: any) {
-    return res.sendError(error, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED);
+    return res.sendError(error, QUALIFICATION_MESSAGES.REVIEW_MAPPING_UPDATE_FAILED, 500);
   }
 };
 
