@@ -476,7 +476,7 @@ export const getOptionQueryReviewMappingDao = async (queryData: any) => {
     }
 
     const query = `
- SELECT 
+SELECT 
     am.id,
     am.answer_id AS answerId,
     am.question_id AS questionId,
@@ -491,15 +491,14 @@ export const getOptionQueryReviewMappingDao = async (queryData: any) => {
     am.created_by,
     am.updated_by,
     am.old_member_answer_id AS oldMemberAnswerId,
-    a.text AS answerText  -- <-- added text from answers table
+    a.text AS answerText
 FROM dbo.answers_mapping am
 LEFT JOIN dbo.answers a
-    ON am.member_answer_id = a.id  -- assuming member_answer_id points to answers.id
+    ON am.answer_id = a.id  -- <-- join on answer_id instead of member_answer_id
 WHERE am.member_id = @memberId
   AND am.question_id = @questionId
   AND ISNULL(am.old_member_answer_id, -1) != ISNULL(am.member_answer_id, -1)
   AND am.isApproved = 0;
-
 
     `;
 
