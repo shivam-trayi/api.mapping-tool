@@ -49,9 +49,11 @@ export const updateQuestionsMappingReviewService = async (bodyData: {
   try {
     const result = await updateQuestionsMappingReviewDao(bodyData);
     if (!result || result.length === 0) {
-      return { status: 404, success: false, data: [] };
+      return { data: [] };
     }
-    return { status: 200, success: true, data: result };
+    const affectedRows = result.reduce((sum, val) => sum + val, 0);
+    return { data: { affectedRows } };
+
   } catch (error: any) {
     throw error;
   }
@@ -84,9 +86,9 @@ export const getAllOptionsById = async (queryData: { memberType: string; memberI
   try {
     const result = await getAllAnswrsListById(queryData);
     if (!result || result.length === 0) {
-      return { status: 404, success: false, data: [] };
+      return { data: [] };
     }
-    return { status: 200, success: true, data: result };
+    return { data: result };
   } catch (error: any) {
     throw error;
   }
@@ -103,9 +105,9 @@ export const updateOptionsValueByQID = async (bodyData: {
   try {
     const result = await updateAnswersMappingDao(bodyData);
     if (!result) {
-      return { status: 404, success: false, data: [], message: "Update failed" };
+      return { data: [] };
     }
-    return { status: 200, success: true, data: result };
+    return { data: result };
   } catch (error: any) {
     throw error;
   }
@@ -128,10 +130,10 @@ export const getOptionQueryReviewMappingService = async (queryData: any) => {
     const result = await getOptionQueryReviewMappingDao(queryData);
 
     if (!result || result.length === 0) {
-      return { status: 204, success: false, data: [] };
+      return { data: [] };
     }
 
-    return { status: 200, success: true, data: result };
+    return { data: result };
   } catch (error) {
     throw error;
   }
@@ -179,10 +181,10 @@ export const insertAnswerMappingService = async (bodyData: any) => {
     const result = await insertAnswerMappingDao(bodyData);
 
     if (!result || !result.success) {
-      return { status: 204, success: false, message: result?.message ?? OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_FAILED };
+      return { status: 204, success: false, message: result?.message, affectedRows: result?.affectedRows || 0 };
     }
 
-    return { status: 200, success: true, message: OPTION_MESSAGES.OPTION_REVIEW_MAPPING_UPDATE_SUCCESS };
+    return { status: 200, success: true, message: result.message, affectedRows: result.affectedRows };
   } catch (error: any) {
     throw error;
   }
@@ -194,8 +196,8 @@ export interface UpdateAnswerMappingPayload {
   optionData: {
     questionId: number;
     qualificationId: number;
-    memberAnswerId: string; 
-    answerId?: number; 
+    memberAnswerId: string;
+    answerId?: number;
   }[];
 }
 
