@@ -277,33 +277,35 @@ export const getAllAnswrsListById = async (queryData: {
     }
 
     const query = `
-      SELECT 
-        q.id AS questionId,
-        q.text AS questionText,
-        q.language_id AS langCode,
-        qual.id AS qualificationId,
-        qual.name AS qualificationName,
-        ans.id AS answerId,
-        ans.text AS answerText,
-        am.member_answer_id AS memberAnswerId,
-        am.old_member_answer_id AS oldMemberAnswerId
-      FROM dbo.questions q
-      INNER JOIN dbo.answers ans 
-        ON ans.question_id = q.id
-      INNER JOIN dbo.qualifications qual
-        ON qual.id = ans.demographic_id
-      INNER JOIN dbo.qualifications_mapping qm
-        ON qm.qualification_id = qual.id
-           AND qm.member_id = @memberId
-           AND qm.member_type = @memberType
-      LEFT JOIN dbo.answers_mapping am
-        ON am.answer_id = ans.id
-       AND am.question_id = q.id
-       AND am.member_id = @memberId
-       AND am.member_type = @memberType
-      WHERE q.id = @questionId
-        AND q.language_id = @langCode
-      ORDER BY ans.id;
+SELECT 
+    q.id AS questionId,
+    q.text AS questionText,
+    q.language_id AS langCode,
+    qual.id AS qualificationId,
+    qual.name AS qualificationName,
+    ans.id AS answerId,
+    ans.text AS answerText,
+    am.member_answer_id AS memberAnswerId,
+    am.old_member_answer_id AS oldMemberAnswerId
+FROM dbo.questions q
+INNER JOIN dbo.answers ans 
+    ON ans.question_id = q.id
+INNER JOIN dbo.qualifications qual
+    ON qual.id = ans.demographic_id
+INNER JOIN dbo.qualifications_mapping qm
+    ON qm.qualification_id = qual.id
+       AND qm.member_id = @memberId
+       AND qm.member_type = @memberType
+LEFT JOIN dbo.answers_mapping am
+    ON am.answer_id = ans.id
+   AND am.question_id = q.id
+   AND am.member_id = @memberId
+   AND am.member_type = @memberType
+WHERE q.id = @questionId
+  AND q.language_id = @langCode
+ORDER BY ans.id;
+
+
     `;
 
     const request = pool.request();
