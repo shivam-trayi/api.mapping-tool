@@ -16,13 +16,14 @@ export const ERROR_MESSAGES = {
 } as const;
 
 export const USER_MESSAGES = {
-  LOGIN_SUCCESS: "Login successfully",
-  LOGIN_FAILED: "Login failed",
-  LOGOUT_SUCCESS: "Logout successfully",
-  LOGOUT_FAILED: "Logout failed",
-  SIGNUP_SUCCESS: "Signup successfully",
-  SIGNUP_FAILED: "Signup failed",
+  LOGIN_SUCCESS: "Logged in successfully.",
+  LOGIN_FAILED: "Login failed. Please check your credentials.",
+  LOGOUT_SUCCESS: "Logged out successfully.",
+  LOGOUT_FAILED: "Logout failed. Please try again.",
+  SIGNUP_SUCCESS: "Signup completed successfully.",
+  SIGNUP_FAILED: "Signup failed. Please try again.",
 } as const;
+
 
 export const AUTH_MESSAGES = {
   RESET_PASSWORD_SUCCESS: "Password reset successfully",

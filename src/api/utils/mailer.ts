@@ -40,14 +40,11 @@ const sendMail = async (
     );
 
     if (response.status === 201) {
-      console.log('Email sent:', response.data);
       return { success: true };
     } else {
-      console.error('Failed to send email:', response.data);
       return { success: false };
     }
   } catch (error: any) {
-    console.error('Error sending email:', error.response?.data || error.message);
     return { success: false };
   }
 };

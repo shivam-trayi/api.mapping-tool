@@ -18,14 +18,19 @@ export const getQualifications = async (req: Request, res: Response) => {
 
 export const insertQualificationMapping = async (req: Request, res: Response) => {
   try {
-    let bodyData = req.body;
-    const result =
-      await qualificationService.createDemographicsMapping(bodyData);
-    return res.sendSuccess(result, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_SUCCESS, 200);
+    const bodyData = req.body;
+    const result = await qualificationService.createDemographicsMapping(bodyData);
+
+    return res.sendSuccess(
+      { affectedRows: result.affectedRows },
+      QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_SUCCESS,
+      200
+    );
   } catch (err: any) {
     return res.sendError(err, QUALIFICATION_MESSAGES.QUALIFICATION_INSERT_FAILED, 500);
   }
 };
+
 
 export const getQualificationDemographicsMappingReview = async (req: Request, res: Response) => {
   try {

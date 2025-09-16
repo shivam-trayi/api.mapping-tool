@@ -73,6 +73,8 @@ export const createQualificationsMappingDao = async (
   bodyData: QualificationsMappingData[]
 ) => {
   try {
+    let affectedRows = 0;
+
     for (const data of bodyData) {
       const {
         qualification_id,
@@ -100,7 +102,6 @@ export const createQualificationsMappingDao = async (
         oldMappedId = existingResult.recordset[0].member_qualification_id;
       }
 
-      // Step 2: Insert/Update Query
       const query = `
         IF EXISTS (
           SELECT 1 
@@ -115,6 +116,8 @@ export const createQualificationsMappingDao = async (
             updated_by = @updated_by,
             updated_at = GETDATE()
           WHERE qualification_id = @qualification_id AND member_id = @member_id;
+
+          SELECT @@ROWCOUNT AS affectedRows;
         END
         ELSE
         BEGIN
@@ -122,6 +125,8 @@ export const createQualificationsMappingDao = async (
             (qualification_id, member_id, member_type, member_qualification_id, old_member_qualification_id, created_at, is_active, created_by, updated_by)
           VALUES
             (@qualification_id, @member_id, @member_type, @member_qualification_id, @old_member_qualification_id, GETDATE(), 1, @created_by, @updated_by);
+
+          SELECT @@ROWCOUNT AS affectedRows;
         END
       `;
 
@@ -134,56 +139,17 @@ export const createQualificationsMappingDao = async (
       request.input("created_by", created_by ?? 11);
       request.input("updated_by", updated_by ?? 11);
 
-      await request.query(query);
+      const result = await request.query(query);
+      affectedRows += result.recordset[0].affectedRows;
     }
 
-    return { success: true };
+    return { success: true, affectedRows };
   } catch (error) {
-    console.error("Error in createQualificationsMappingDao:", error);
     throw error;
   }
 };
 
 
-// Get mapping review for a member from qualifications_mapping table
-// export const getQualificationDemographicsMappingReviewDao = async (queryData: {
-//   memberId: number;
-// }) => {
-//   try {
-//     const { memberId } = queryData;
-
-//     if (!memberId) {
-//       return [];
-//     }
-
-//     const query = `
-//       SELECT 
-//         qm.id AS mappingId,
-//         qm.qualification_id,
-//         q.name AS qualificationName,
-//         qm.member_id,
-//         qm.member_type,
-//         qm.member_qualification_id,
-//         qm.old_member_qualification_id, -- add this
-//         qm.created_at,
-//         qm.is_active
-//       FROM dbo.qualifications_mapping qm
-//       LEFT JOIN dbo.qualifications q
-//         ON q.id = qm.qualification_id
-//       WHERE qm.member_id = @memberId
-//       ORDER BY qm.created_at DESC;
-//     `;
-
-//     const request = pool.request();
-//     request.input('memberId', memberId);
-
-//     const result = await request.query(query);
-//     return result.recordset;
-//   } catch (error) {
-//     console.error('Error in getQualificationDemographicsMappingReviewDao:', error);
-//     throw error;
-//   }
-// };
 export const getQualificationDemographicsMappingReviewDao = async (queryData: { memberId: number }) => {
   try {
     const { memberId } = queryData;
@@ -239,7 +205,6 @@ export const getQualificationDemographicsMappingReviewDao = async (queryData: { 
       return result.recordset;
     }
   } catch (error) {
-    console.error('Error in getQualificationDemographicsMappingReviewDao:', error);
     throw error;
   }
 };
@@ -250,7 +215,7 @@ export const saveDemographicsMappingReviewInDB = async (
   bodyData: QualificationsMappingData[]
 ): Promise<QualificationsMappingData[]> => {
   try {
-       const poolConnection = await pool
+    const poolConnection = await pool
     const insertedRows: QualificationsMappingData[] = [];
 
     for (const row of bodyData) {
@@ -289,7 +254,6 @@ export const saveDemographicsMappingReviewInDB = async (
 
     return insertedRows;
   } catch (error) {
-    console.error('Error in saveDemographicsMappingReviewInDB:', error);
     throw error;
   }
 };

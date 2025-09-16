@@ -13,6 +13,8 @@ export interface QualificationsMappingData {
 export interface CreateMappingResponse {
   status: number;
   success: boolean;
+  affectedRows?: number; // optional if it may not exist
+
 }
 
 
@@ -47,6 +49,6 @@ export interface QualificationConstantUpdatePayload {
 }
 
 export interface UpdateQualificationConstantPayload {
-  id: number; 
+  id: number;
   member_qualification_id: number | null;
 };

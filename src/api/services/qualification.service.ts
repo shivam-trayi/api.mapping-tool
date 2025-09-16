@@ -60,12 +60,13 @@ export const createDemographicsMapping = async (
   bodyData: QualificationsMappingData[]
 ): Promise<CreateMappingResponse> => {
   try {
-    await qualificationDao.createQualificationsMappingDao(bodyData);
-    return { status: 200, success: true };
+    const result = await qualificationDao.createQualificationsMappingDao(bodyData);
+    return { status: 200, success: true, affectedRows: result.affectedRows };
   } catch (error) {
-    return { status: 500, success: false };
+    return { status: 500, success: false, affectedRows: 0 };
   }
 };
+
 
 
 export const getQualificationDemographicsMappingReviewService = async (queryData: any) => {

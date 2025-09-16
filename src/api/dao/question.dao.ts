@@ -47,7 +47,6 @@ export const getMappingQuestionsDao = async (queryData: {
 
     return result.recordset;
   } catch (error) {
-    console.error('Error in getMappingQuestionsDao:', error);
     throw error;
   }
 };
@@ -99,7 +98,6 @@ and qmm.isApproved = 0
     const result = await request.query(query);
     return result.recordset;
   } catch (error) {
-    console.error('Error in getQuestionsMappingReviewDao:', error);
     throw error;
   }
 };
@@ -126,7 +124,6 @@ export const updateQuestionsMappingReviewDao = async ({
       const memberQuestionId = opt.MemberQueryId || null;
 
       if (!questionId) {
-        console.warn("Skipping invalid mapping:", opt);
         continue;
       }
 
@@ -174,7 +171,6 @@ END
 
     return updatedRows;
   } catch (error) {
-    console.error("Error in updateQuestionsMappingReviewDao:", error);
     throw error;
   }
 };
@@ -196,7 +192,6 @@ export const createQuestionsMappingReviewDao = async (bodyData: {
 
     for (const item of optionData) {
       if (!item.questionId || !item.qualificationId) {
-        console.warn("Skipping invalid item:", item);
         continue;
       }
 
@@ -258,7 +253,6 @@ export const createQuestionsMappingReviewDao = async (bodyData: {
       affectedRows: insertedOrUpdated.length,
     };
   } catch (error) {
-    console.error("Error in createQuestionsMappingReviewDao:", error);
     throw error;
   }
 };
@@ -329,7 +323,6 @@ ORDER BY ans.id;
 
     return formatted;
   } catch (error) {
-    console.error("Error in getAnswersByQuestion:", error);
     throw error;
   }
 };
@@ -379,7 +372,6 @@ export const createMappingQuestionDao = async (bodyData: BodyData) => {
 
     return { success: true, message: "Qualification mappings inserted successfully." };
   } catch (error) {
-    console.error("Error in createMappingQualificationsDemoQueryDao:", error);
     throw error;
   }
 };
@@ -408,7 +400,6 @@ export const updateAnswersMappingDao = async (bodyData: {
 
     for (const opt of options) {
       if (!opt.answerId) {
-        console.warn("Skipping invalid option:", opt);
         continue;
       }
 
@@ -457,12 +448,9 @@ END
     }
 
     return {
-      // success: true,
-      // message: "Answers mapping inserted/updated successfully.",
       affectedRows: results.length,
     };
   } catch (error) {
-    console.error("Error in updateAnswersMappingDao:", error);
     throw error;
   }
 };
@@ -511,7 +499,6 @@ WHERE am.member_id = @memberId
     const result = await request.query(query);
     return result.recordset;
   } catch (error) {
-    console.error("Error in getOptionQueryReviewMappingDao:", error);
     throw error;
   }
 };
@@ -537,7 +524,6 @@ export const updateQuestionsConstantMappingReviewDao = async (
           : null;
 
       if (!questionId || !memberId || !memberType) {
-        console.warn("Skipping invalid item:", item);
         continue;
       }
 
@@ -569,7 +555,6 @@ export const updateQuestionsConstantMappingReviewDao = async (
         const result = await request.query(query);
         results.push({ questionId, success: true, rowsAffected: result.rowsAffected[0] });
       } catch (sqlError: any) {
-        console.error(`SQL error for questionId ${questionId}:`, sqlError);
         results.push({ questionId, success: false, error: sqlError.message });
       }
     }
@@ -579,7 +564,6 @@ export const updateQuestionsConstantMappingReviewDao = async (
       results,
     };
   } catch (error: any) {
-    console.error("DAO error:", error);
     throw new Error(`DAO failed: ${error.message}`);
   }
 };
@@ -809,7 +793,6 @@ export const insertAnswerMappingDao = async (bodyData: any) => {
 
     return { success: true, message: "Option review mapping inserted/updated successfully", affectedRows };
   } catch (error) {
-    console.error("insertAnswerMappingDao Error:", error);
     return { success: false, message: "Failed to insert/update option review mapping", affectedRows: 0 };
   }
 };
